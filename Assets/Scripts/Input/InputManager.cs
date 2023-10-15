@@ -31,7 +31,7 @@ public class InputManager : MonoBehaviour
             //     swipeEvent.Invoke();
             // }
 
-            yield return new WaitForSeconds(0.005f);
+            yield return new WaitForSeconds(0.002f);
         }
     }
 }

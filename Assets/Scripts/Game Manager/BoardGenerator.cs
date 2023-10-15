@@ -54,7 +54,7 @@ public class BoardGenerator : MonoBehaviour
         for (int i = 0; i < numLane; i++)
         {
             position.x = -((numLane - 1) / 2) * laneDistance + i * laneDistance;
-            position.y = 0;
+            position.y = 1.5f;
             position.z = _lanes[i].transform.position.z;
 
             _lanes[i].transform.position = position;
