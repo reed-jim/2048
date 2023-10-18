@@ -15,6 +15,21 @@ public class BoardGenerator : MonoBehaviour
     [SerializeField] private float laneGap;
     private GameObject[] _lanes;
 
+    private float _topBoundY;
+    private float _bottomBoundY;
+
+    public float TopBoundY
+    {
+        get => _topBoundY;
+        set => _topBoundY = value;
+    }
+    
+    public float BottomBoundY
+    {
+        get => _bottomBoundY;
+        set => _bottomBoundY = value;
+    }
+
     public int NumLane
     {
         get => numLane;
@@ -59,5 +74,10 @@ public class BoardGenerator : MonoBehaviour
 
             _lanes[i].transform.position = position;
         }
+
+        MeshRenderer laneRenderer = _lanes[0].GetComponent<MeshRenderer>();
+        
+        _topBoundY = _lanes[0].transform.position.y + 0.5f * laneRenderer.bounds.size.y;
+        _bottomBoundY = _lanes[0].transform.position.y - 0.5f * laneRenderer.bounds.size.y;
     }
 }

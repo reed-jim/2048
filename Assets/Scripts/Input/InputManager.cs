@@ -11,7 +11,7 @@ public class InputManager : MonoBehaviour
 
     private void Start()
     {
-        swipeEvent.AddListener(gameManager.OnSwipe);
+        // swipeEvent.AddListener(gameManager.OnSwipe);
         StartCoroutine(Check());
     }
 
@@ -21,11 +21,21 @@ public class InputManager : MonoBehaviour
         {
             var mouseY = Input.GetAxis("Mouse Y");
 
-            if (Input.GetMouseButtonDown(0))
+            if (gameManager.InteractMode == InteractMode.Normal)
             {
-                swipeEvent.Invoke();
+                if (Input.GetMouseButtonDown(0))
+                {
+                    gameManager.OnSwipe();
+                }
             }
-            
+            else if (gameManager.InteractMode == InteractMode.Swap)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    gameManager.OnSwapSelect();
+                }
+            }
+
             // if (mouseY > 0)
             // {
             //     swipeEvent.Invoke();

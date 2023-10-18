@@ -12,14 +12,52 @@ public class NextBlockGenerator : MonoBehaviour
     [SerializeField] private int nextColorIndex;
     [SerializeField] private string nextBlockValue;
 
-    public int NextColorIndex { get; set; }
-    public string NextBlockValue { get; set; }
+    [Header("REFERENCE")] [SerializeField] private GameManager gameManager;
 
-    public void GenerateNewBlock()
+    public int NextColorIndex
     {
-        NextColorIndex = Random.Range(0, 5);
+        get => nextColorIndex;
+        set => nextColorIndex = value;
+    }
 
-        NextBlockValue = "2";
+    public string NextBlockValue
+    {
+        get => nextBlockValue;
+        set => nextBlockValue = value;
+    }
+
+    public void GenerateNewBlock(int exceptColorIndex = -1)
+    {
+        if (exceptColorIndex != -1)
+        {
+            NextColorIndex = exceptColorIndex;
+            NextBlockValue = "2";
+
+            while (NextColorIndex == exceptColorIndex)
+            {
+                NextColorIndex = Random.Range(0, 5);
+            }
+        }
+        else
+        {
+            bool isBonusPick = Random.Range(0, 0) == 0;
+
+            if (isBonusPick)
+            {
+                gameManager.GetRandomAvailableBlockData(out nextBlockValue, out nextColorIndex);
+
+                if (nextColorIndex == -1)
+                {
+                    NextColorIndex = Random.Range(0, 5);
+                    NextBlockValue = "2a";
+                }
+            }
+            else
+            {
+                NextColorIndex = Random.Range(0, 5);
+                NextBlockValue = "2";
+            }
+        }
 
         blockImage.color = Constants.AllBlockColors[NextColorIndex];
         blockNumberText.text = NextBlockValue;
