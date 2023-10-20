@@ -39,10 +39,12 @@ public class CustomMaterialProperty : MonoBehaviour
         _materialPropertyBlock.SetColor("_BaseColor", color);
         _renderer.SetPropertyBlock(_materialPropertyBlock);
     }
-    
+
     public void ChangeColor(Color newColor)
     {
-        _materialPropertyBlock.SetColor("_BaseColor", newColor);
+        _materialPropertyBlock.SetColor("_Color_1", newColor);
+        // _materialPropertyBlock.SetColor("_Color_2", newColor + new Color(0.3f, 0.3f, 0.3f, 0));
+        _materialPropertyBlock.SetColor("_Color_2", new Color(newColor.r * 1.2f, newColor.g * 1.2f, newColor.b * 1.2f, 1));
         _renderer.SetPropertyBlock(_materialPropertyBlock);
     }
 }

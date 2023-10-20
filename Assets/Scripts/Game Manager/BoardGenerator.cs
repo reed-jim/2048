@@ -40,8 +40,12 @@ public class BoardGenerator : MonoBehaviour
         get => _lanes.Select(lane => lane.transform.position).ToArray();
     }
 
+    private Vector2 _screenSize;
+    
     void Start()
     {
+        _screenSize = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
+        
         SpawnLanes();
         GenerateBoard();
     }
@@ -52,6 +56,8 @@ public class BoardGenerator : MonoBehaviour
 
         _lanes = new GameObject[numLane];
 
+        laneWidth = 0.0008f * _screenSize.x;
+        
         for (int i = 0; i < numLane; i++)
         {
             _lanes[i] = Instantiate(lanePrefab, laneCollection.transform);
@@ -79,5 +85,8 @@ public class BoardGenerator : MonoBehaviour
         
         _topBoundY = _lanes[0].transform.position.y + 0.5f * laneRenderer.bounds.size.y;
         _bottomBoundY = _lanes[0].transform.position.y - 0.5f * laneRenderer.bounds.size.y;
+
+        _topBoundY = 0.42f / 0.5f * 8;
+        _bottomBoundY = -0.2f / 0.5f * 8;
     }
 }

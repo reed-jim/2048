@@ -8,15 +8,13 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    private Rigidbody _rigidbody;
     private CustomMaterialProperty _customMaterialProperty;
 
     private float _number;
     private char? _letter;
     private string _value;
     private int _colorIndex;
-
-    private Vector2 _positionIndex;
+    
     private bool isMoving;
 
     public float Number
@@ -45,18 +43,19 @@ public class Block : MonoBehaviour
 
     void Awake()
     {
-        _rigidbody = GetComponent<Rigidbody>();
         _customMaterialProperty = GetComponent<CustomMaterialProperty>();
 
         Number = 2;
         PositionIndex = new Vector2(-1, -1);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void SetColor()
     {
-        _rigidbody.velocity = Vector3.zero;
-    }
+        Color color = Constants.AllBlockColors[ColorIndex];
 
+        _customMaterialProperty.ChangeColor(color);
+    }
+    
     public void SetColor(int colorIndex)
     {
         Color color = Constants.AllBlockColors[colorIndex];
@@ -79,8 +78,6 @@ public class Block : MonoBehaviour
         {
             Number = float.Parse(value);
         }
-
-        Debug.Log(Letter);
     }
 
     public void SetValue(TMP_Text valueText)
@@ -101,7 +98,6 @@ public class Block : MonoBehaviour
             }
         }
 
-        Debug.Log("after" + Letter);
         if (_letter == null)
         {
             Value = Number.ToString();

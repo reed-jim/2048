@@ -9,8 +9,11 @@ public class AdManager : MonoBehaviour
     private BannerView _bannerView;
     private RewardedAd _rewardedAd;
 
+    [Header("REFERENCE")] [SerializeField] private DataManager dataManager;
+    [SerializeField] private UIManager uiManager;
+
     public delegate void OnRewardedAdFinished();
-    
+
     void Start()
     {
         MobileAds.Initialize((InitializationStatus initStatus) =>
@@ -100,7 +103,6 @@ public class AdManager : MonoBehaviour
         _bannerView.OnAdFullScreenContentClosed += () => { Debug.Log("Banner view full screen content closed."); };
     }
 
-
     public void LoadRewardedAd()
     {
         if (_rewardedAd != null)
@@ -146,23 +148,17 @@ public class AdManager : MonoBehaviour
     private void RegisterEventHandlers(RewardedAd ad)
     {
         // Raised when the ad is estimated to have earned money.
-        ad.OnAdPaid += (AdValue adValue) =>
-        {
-          
-        };
+        ad.OnAdPaid += (AdValue adValue) => { };
         // Raised when an impression is recorded for an ad.
-        ad.OnAdImpressionRecorded += () => {  };
+        ad.OnAdImpressionRecorded += () => { };
         // Raised when a click is recorded for an ad.
-        ad.OnAdClicked += () => {  };
+        ad.OnAdClicked += () => { };
         // Raised when an ad opened full screen content.
-        ad.OnAdFullScreenContentOpened += () => {  };
+        ad.OnAdFullScreenContentOpened += () => { };
         // Raised when the ad closed full screen content.
-        ad.OnAdFullScreenContentClosed += () => {  };
+        ad.OnAdFullScreenContentClosed += () => { };
         // Raised when the ad failed to open full screen content.
-        ad.OnAdFullScreenContentFailed += (AdError error) =>
-        {
-            
-        };
+        ad.OnAdFullScreenContentFailed += (AdError error) => { };
     }
 
     private void RegisterReloadHandler(RewardedAd ad)
@@ -184,5 +180,14 @@ public class AdManager : MonoBehaviour
             // Reload the ad so that we can show another as soon as possible.
             LoadRewardedAd();
         };
+    }
+
+    public void PlayRewardedAdForGem()
+    {
+        ShowRewardedAd(() =>
+        {
+            dataManager.NumGem += 200;
+            uiManager.SetGemText(dataManager.NumGem);
+        });
     }
 }

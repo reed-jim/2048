@@ -19,19 +19,26 @@ public static class Utils
 
         return worldPosition;
     }
-    
-    public static string ToAbbreviatedNumber(int score)
-    {
-        char initialLetter = 'a';
-        string result = score.ToString();
 
-        for (int i = 3; i < 16; i++)
+    public static string ToAbbreviatedNumber(int number)
+    {
+        // char initialLetter = 'a';
+        // string result = score.ToString();
+        //
+        // for (int i = 3; i < 16; i++)
+        // {
+        //     if (score > Mathf.Pow(10, i) && score < Mathf.Pow(10, i + 1))
+        //     {
+        //         result = (score / Mathf.Pow(10, i)).ToString("F2") + ((char)((int)initialLetter + (i - 3)));
+        //     }
+        // }
+
+        string result = number switch
         {
-            if (score > Mathf.Pow(10, i) && score < Mathf.Pow(10, i + 1))
-            {
-                result = (score / Mathf.Pow(10, i)).ToString("F2") + ((char)((int)initialLetter + (i - 3)));
-            }
-        }
+            > 1000 and < 1000000 => (number / 1000).ToString("F2") + "K",
+            > 1000000 => (number / 1000).ToString("F2") + "M",
+            _ => number.ToString()
+        };
 
         return result;
     }

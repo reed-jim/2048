@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TrailRenderer[] trails;
     private Block[] _blockControllers;
     private Rigidbody[] _blockRigidBodies;
+    private Camera _mainCamera;
 
     [Space] [Header("UI")] [SerializeField]
     private TMP_Text blockNumberTextPrefab;
@@ -38,6 +39,8 @@ public class GameManager : MonoBehaviour
 
     [Space] [Header("MANAGEMENT")] [SerializeField]
     private int turn;
+
+    private bool _isPaused;
 
     private InteractMode _interactMode = InteractMode.Normal;
 
@@ -62,6 +65,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private NextBlockGenerator nextBlockGenerator;
     [SerializeField] private UIManager uiManager;
+    [SerializeField] private DataManager dataManager;
 
     [Space] [Header("CUSTOM")] [SerializeField]
     private int numBlock;
@@ -83,7 +87,11 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 60;
+
         _numBlockPerColumn = numBlock / boardGenerator.NumLane;
+
+        _mainCamera = Camera.main;
 
         blocks = new GameObject[numBlock];
         trails = new TrailRenderer[numBlock];
@@ -111,18 +119,68 @@ public class GameManager : MonoBehaviour
 
             _blockNumberTexts[i] = Instantiate(blockNumberTextPrefab, blockNumberTextCollection);
 
-            blocks[i].transform.localScale = new Vector3(blockWidth, blockWidth, blocks[i].transform.localScale.z);
+            blocks[i].transform.localScale = blockWidth * Vector3.one;
             _blockNumberTexts[i].gameObject.SetActive(false);
             blocks[i].SetActive(false);
         }
 
-        _blockDistance = 1.1f * blockWidth;
+        _blockDistance = 2.2f * blockWidth;
 
         nextBlockGenerator.GenerateNewBlock();
+
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        GameplayData data = dataManager.GameplayData;
+
+        if (data.IsSaved)
+        {
+            turn = data.Turn;
+            _columnBlockIndexes = data.ColumnBlockIndexes;
+            _scoreNumber = data.ScoreNumber;
+            _scoreLetter = data.ScoreLetter;
+
+            for (int i = 0; i < data.BlockData.Length; i++)
+            {
+                _blockControllers[i].Number = data.BlockData[i].Number;
+                _blockControllers[i].Letter = data.BlockData[i].Letter;
+                _blockControllers[i].Value = data.BlockData[i].Value;
+                _blockControllers[i].ColorIndex = data.BlockData[i].ColorIndex;
+            }
+
+            for (int i = 0; i < boardGenerator.NumLane; i++)
+            {
+                for (int j = 0; j < _numBlockPerColumn; j++)
+                {
+                    if (_columnBlockIndexes[i, j] != -1)
+                    {
+                        int blockIndex = _columnBlockIndexes[i, j];
+
+                        _blockControllers[blockIndex].transform.position = new Vector3(
+                            boardGenerator.LanePositions[i].x,
+                            highestBlockPositionY - (_numBlockPerColumn - 1 - j) * _blockDistance,
+                            _blockControllers[blockIndex].transform.position.z);
+                        _blockControllers[blockIndex].SetColor();
+                        blocks[blockIndex].SetActive(true);
+
+                        Vector3 blockPosition = _mainCamera.WorldToScreenPoint(blocks[blockIndex].transform.position);
+                        _blockNumberTexts[blockIndex].transform.position = blockPosition;
+                        _blockNumberTexts[blockIndex].text = _blockControllers[blockIndex].Value;
+                        _blockNumberTexts[blockIndex].gameObject.SetActive(true);
+                    }
+                }
+            }
+
+            uiManager.SetScoreText(_scoreNumber, _scoreLetter);
+        }
     }
 
     public void OnSwipe()
     {
+        if (_isPaused) return;
+
         if (_isAnotherBlockMoving) return;
 
         if (turn > 0) _currentPoolBlockIndex = FindAvailableBlockIndex();
@@ -180,6 +238,7 @@ public class GameManager : MonoBehaviour
             Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 0.3f);
         trails[_currentPoolBlockIndex].endColor =
             Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 1);
+        trails[_currentPoolBlockIndex].gameObject.SetActive(true);
     }
 
     private void MoveBlock(int blockIndex, int rowIndex, int columnIndex, Vector3 end, bool isCheckMergeSingle = true,
@@ -189,7 +248,8 @@ public class GameManager : MonoBehaviour
 
         StartCoroutine(TextFollowBlock(blockIndex));
 
-        Tween.PositionY(blocks[_currentPoolBlockIndex].transform, end.y, duration: moveDuration, ease: moveEasing)
+        Tween.Position(blocks[blockIndex].transform, end,
+                duration: isFirstTime ? moveDuration : moveDuration / 2f, ease: moveEasing)
             .OnComplete(() => OnBlockMoved(blockIndex, rowIndex, columnIndex, isCheckMergeSingle, isLast));
     }
 
@@ -249,7 +309,7 @@ public class GameManager : MonoBehaviour
     {
         void SetTextPosition()
         {
-            Vector3 blockPosition = Camera.main.WorldToScreenPoint(blocks[blockIndex].transform.position);
+            Vector3 blockPosition = _mainCamera.WorldToScreenPoint(blocks[blockIndex].transform.position);
 
             _blockNumberTexts[blockIndex].transform.position = blockPosition;
         }
@@ -260,12 +320,17 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.002f);
         }
+
+        yield return new WaitForSeconds(0.02f);
+
+        SetTextPosition();
     }
 
     private void OnBlockMoved(int blockIndex, int rowIndex, int columnIndex, bool isCheckMergeSingle = true,
         bool isLast = false, bool isFirstTime = false)
     {
         _blockControllers[blockIndex].IsMoving = false;
+        _columnBlockIndexes[rowIndex, columnIndex] = blockIndex;
 
         Tween.Delay(0.1f).OnComplete(() => trails[blockIndex].gameObject.SetActive(false));
 
@@ -549,6 +614,20 @@ public class GameManager : MonoBehaviour
                     _scoreLetter = (char)((int)_scoreLetter + 1);
                 }
             }
+            else
+            {
+                _scoreNumber += newScoreNumber * Mathf.Pow(1000, (int)newScoreLetter - 97);
+
+                if (_scoreNumber > 1000)
+                {
+                    _scoreNumber /= 1000;
+                    _scoreLetter = (char)((int)newScoreLetter + 1);
+                }
+                else
+                {
+                    _scoreLetter = newScoreLetter;
+                }
+            }
         }
 
         uiManager.SetScoreText(_scoreNumber, _scoreLetter);
@@ -560,6 +639,8 @@ public class GameManager : MonoBehaviour
         nextBlockGenerator.GenerateNewBlock();
 
         turn++;
+
+        dataManager.SaveGameplayData(turn, _columnBlockIndexes, _scoreNumber, _scoreLetter, _blockControllers);
     }
 
     private void PushChange(int blockIndex, Vector2Int prevPositionIndex, Vector2Int curPositionIndex)
@@ -581,8 +662,16 @@ public class GameManager : MonoBehaviour
 
                 if (positionChange.PrevPositionIndex.x == -1)
                 {
-                    blocks[positionChange.BlockIndex].SetActive(false);
-                    _columnBlockIndexes[positionChange.CurPositionIndex.x, positionChange.CurPositionIndex.y] = -1;
+                    _blockNumberTexts[positionChange.BlockIndex].gameObject.SetActive(false);
+
+                    Tween.Scale(blocks[positionChange.BlockIndex].transform, Vector3.zero, duration: 0.15f)
+                        .OnComplete(() =>
+                        {
+                            blocks[positionChange.BlockIndex].transform.localScale = blockWidth * Vector3.one;
+                            blocks[positionChange.BlockIndex].SetActive(false);
+                            _columnBlockIndexes[positionChange.CurPositionIndex.x, positionChange.CurPositionIndex.y] =
+                                -1;
+                        });
                 }
             }
         }
@@ -681,6 +770,8 @@ public class GameManager : MonoBehaviour
         {
             _selectedBlockIndexes.Add(cachedBlockIndex);
             _selectedBlockPositionIndexes.Add(cachedPositionIndex);
+
+            Tween.Scale(blocks[cachedBlockIndex].transform, 1.1f * blockWidth * Vector3.one, duration: 0.15f);
         }
 
         if (_selectedBlockIndexes.Count == 2)
@@ -694,12 +785,18 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < _selectedBlockIndexes.Count; i++)
         {
             bool isLast = i == 1;
+            int otherIndexInSwapList = i == 0 ? 1 : 0;
+            int otherRowIndex = _selectedBlockPositionIndexes[otherIndexInSwapList].x;
+            int otherColumnIndex = _selectedBlockPositionIndexes[otherIndexInSwapList].y;
+
+            Tween.Scale(blocks[_selectedBlockIndexes[i]].transform, blockWidth * Vector3.one, duration: 0.15f);
 
             MoveBlock(
                 _selectedBlockIndexes[i],
-                _selectedBlockPositionIndexes[i].x,
-                _selectedBlockPositionIndexes[i].y,
-                blocks[_selectedBlockIndexes[i == 0 ? 1 : 0]].transform.position,
+                otherRowIndex,
+                otherColumnIndex,
+                blocks[_selectedBlockIndexes[otherIndexInSwapList]].transform.position,
+                isCheckMergeSingle: false,
                 isLast: isLast
             );
         }
@@ -711,4 +808,14 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
+
+    public void Pause()
+    {
+        _isPaused = true;
+    }
+
+    public void UnPause()
+    {
+        _isPaused = false;
+    }
 }

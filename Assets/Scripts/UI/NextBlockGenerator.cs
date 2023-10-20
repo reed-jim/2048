@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -61,5 +60,13 @@ public class NextBlockGenerator : MonoBehaviour
 
         blockImage.color = Constants.AllBlockColors[NextColorIndex];
         blockNumberText.text = NextBlockValue;
+
+        PlayEffect();
+    }
+
+    private void PlayEffect()
+    {
+        Tween.Scale(blockImage.rectTransform, 1.1f, duration: 0.2f, cycles: 2, cycleMode: CycleMode.Yoyo)
+            .SetCycles(false);
     }
 }
