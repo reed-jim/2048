@@ -30,26 +30,30 @@ public class Skill : MonoBehaviour
 
     public void ChangeColorSkill()
     {
-        if (dataManager.IsEnoughGem(SkillType.ChangeColor))
-        {
-            nextBlockGenerator.GenerateNewBlock(nextBlockGenerator.NextColorIndex);
-        }
-        else
-        {
-            uiManager.ShowNotEnoughGemEffect(SkillType.ChangeColor);
-        }
+        // if (dataManager.IsEnoughGem(SkillType.ChangeColor))
+        // {
+        //     nextBlockGenerator.GenerateNewBlock(nextBlockGenerator.NextColorIndex);
+        // }
+        // else
+        // {
+        //     uiManager.ShowNotEnoughGemEffect(SkillType.ChangeColor);
+        // }
+        nextBlockGenerator.GenerateNewBlock(nextBlockGenerator.NextColorIndex);
     }
 
     public void SwapSkill()
     {
-        if (dataManager.IsEnoughGem(SkillType.Swap))
-        {
-            gameManager.EnterSwapMode();
-        }
-        else
-        {
-            uiManager.ShowNotEnoughGemEffect(SkillType.Swap);
-        }
+        // if (dataManager.IsEnoughGem(SkillType.Swap))
+        // {
+        //     uiManager.swapModePopup.ShowPopup();
+        //     gameManager.EnterSwapMode();
+        // }
+        // else
+        // {
+        //     uiManager.ShowNotEnoughGemEffect(SkillType.Swap);
+        // }
+        uiManager.swapModePopup.ShowPopup();
+        gameManager.EnterSwapMode();
     }
 
     public void DestroySkill()

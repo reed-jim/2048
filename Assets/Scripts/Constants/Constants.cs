@@ -12,7 +12,7 @@ public static class Constants
         // new Color(54f / 255, 255f / 255, 242f / 255, 1),
         // new Color(215f / 255, 54f / 255, 255f / 255, 1),
         FromRGB(227, 0, 133),
-        FromRGB(252, 223, 34),
+        FromRGB(255, 222, 0),
         FromRGB(244, 109, 27),
         FromRGB(29, 194, 115),
         FromRGB(23, 139, 216)

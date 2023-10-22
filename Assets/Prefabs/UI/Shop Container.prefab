@@ -228,11 +228,13 @@ MonoBehaviour:
   container: {fileID: 1325772436563228681}
   title: {fileID: 0}
   closeButton: {fileID: 181258839420131021}
+  gameManager: {fileID: 0}
   itemButtonPrefab: {fileID: 3945320711023589322, guid: 4db1e0a6f1003fc4cbd586a0f99413a0,
     type: 3}
   itemButtons: []
   dataManager: {fileID: 0}
   adManager: {fileID: 0}
+  numItem: 0
 --- !u!1001 &8061492492482590776
 PrefabInstance:
   m_ObjectHideFlags: 0

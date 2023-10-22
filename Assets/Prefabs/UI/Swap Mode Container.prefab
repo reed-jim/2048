@@ -94,6 +94,7 @@ MonoBehaviour:
   container: {fileID: 5257007759264505242}
   title: {fileID: 3873191704336828209}
   closeButton: {fileID: 3852380379928072556}
+  gameManager: {fileID: 0}
   description: {fileID: 257503296039327494}
 --- !u!1 &7934754954440717000
 GameObject:

@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private RectTransform gameplayTopContainer;
     [SerializeField] private RectTransform gameplayBottomContainer;
+    [SerializeField] private RectTransform topOutsideSafeAreaFill;
     [SerializeField] private RectTransform bestScoreRT;
     [SerializeField] private RectTransform bestScoreImage;
     [SerializeField] private RectTransform nextBlockImage;
@@ -40,7 +41,8 @@ public class UIManager : MonoBehaviour
 
     [Header("POPUP")] [SerializeField] private ShopPopup shopPopup;
     [SerializeField] private PausePopup pausePopup;
-    [SerializeField] private SwapModePopup swapModePopup;
+    [SerializeField] public SwapModePopup swapModePopup;
+    [SerializeField] public BlockRecordPopup blockRecordPopup;
 
     [Space] [Header("TMP_TEXT")] [SerializeField]
     private TMP_Text bestScoreText;
@@ -60,10 +62,22 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Skill skillManager;
 
     private Vector2 _screenSize;
+    private Vector2 _safeAreaSize;
+    private float _safeAreaBottomOffset;
+    private float _safeAreaTopSizeY;
+    private float _safeAreaSizeYProportionToScreen;
+
+    public float SafeAreaTopSizeY
+    {
+        get => _safeAreaTopSizeY;
+    }
 
     private void Start()
     {
         _screenSize = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
+        _safeAreaSize = new Vector2(Screen.safeArea.width, Screen.safeArea.height);
+        _safeAreaBottomOffset = Screen.safeArea.position.y;
+        _safeAreaTopSizeY = _screenSize.y - _safeAreaSize.y - _safeAreaBottomOffset;
 
         menuButton.onClick.AddListener(OpenMenu);
         continueButton.onClick.AddListener(CloseMenu);
@@ -91,60 +105,44 @@ public class UIManager : MonoBehaviour
         RectTransform swapButtonRT = swapButton.GetComponent<RectTransform>();
         RectTransform changeColorButtonRT = changeColorButton.GetComponent<RectTransform>();
         RectTransform undoButtonRT = undoButton.GetComponent<RectTransform>();
+        RectTransform menuButtonRT = menuButton.GetComponent<RectTransform>();
 
-        gameplayTopContainer.sizeDelta = new Vector2(1f * _screenSize.x, 0.08f * _screenSize.y);
-        gameplayBottomContainer.sizeDelta = new Vector2(1f * _screenSize.x, 0.3f * _screenSize.y);
+        gameplayTopContainer.sizeDelta = new Vector2(1f * _screenSize.x, 0.12f * _screenSize.y);
+        gameplayBottomContainer.sizeDelta = new Vector2(1f * _screenSize.x, 0.35f * _screenSize.y);
 
         gameplayTopContainer.localPosition =
-            new Vector3(0, 0.5f * (_screenSize.y - gameplayTopContainer.sizeDelta.y), 0);
+            new Vector3(0, 0.5f * (_screenSize.y - gameplayTopContainer.sizeDelta.y) - _safeAreaTopSizeY, 0);
         gameplayBottomContainer.localPosition =
             new Vector3(0, -0.5f * (_screenSize.y - gameplayBottomContainer.sizeDelta.y), 0);
 
-        // gameplayTopContainer.sizeDelta = new Vector2(0.95f * _screenSize.x, 0.07f * _screenSize.y);
-        // gameplayBottomContainer.sizeDelta = new Vector2(0.95f * _screenSize.x, 0.3f * _screenSize.y);
-        //
-        // gameplayTopContainer.localPosition =
-        //     new Vector3(0, 0.5f * (_screenSize.y - gameplayTopContainer.sizeDelta.y) - 0.025f * _screenSize.x, 0);
-        // gameplayBottomContainer.localPosition =
-        //     new Vector3(0, -0.5f * (_screenSize.y - gameplayBottomContainer.sizeDelta.y) + 0.025f * _screenSize.x, 0);
-
-        RectTransform menuButtonRT = menuButton.GetComponent<RectTransform>();
-
-        // menuButtonRT.sizeDelta =
-        //     new Vector2(0.15f * gameplayTopContainer.sizeDelta.x, 0.8f * gameplayTopContainer.sizeDelta.y);
-        // menuButtonRT.localPosition =
-        //     new Vector3(
-        //         -0.5f * (gameplayTopContainer.sizeDelta.x - menuButtonRT.sizeDelta.x) +
-        //         0.1f * gameplayTopContainer.sizeDelta.y, 0, 0);
+        topOutsideSafeAreaFill.sizeDelta = new Vector2(_screenSize.x, _safeAreaTopSizeY);
+        topOutsideSafeAreaFill.localPosition = new Vector3(0,
+            gameplayTopContainer.localPosition.y +
+            0.5f * (gameplayTopContainer.sizeDelta.y + topOutsideSafeAreaFill.sizeDelta.y), 0);
 
         // GEM CONTAINER
-        SetUIElementSizeToParent(gemContainer, gameplayTopContainer, new Vector2(0.3f, 0.8f));
+        SetUIElementSizeToParent(gemContainer, gameplayTopContainer, new Vector2(0.33f, 0.4f));
         gemContainer.localPosition =
             new Vector3(
                 -0.5f * (gameplayTopContainer.sizeDelta.x - gemContainer.sizeDelta.x) +
                 0.1f * gameplayTopContainer.sizeDelta.y,
-                0, 0);
+                0.3f * (gameplayTopContainer.sizeDelta.y - gemContainer.sizeDelta.y),
+                0);
 
-        gemImageRT.sizeDelta = 0.5f * new Vector2(gemContainer.sizeDelta.y, gemContainer.sizeDelta.y);
+        gemImageRT.sizeDelta = 0.6f * new Vector2(gemContainer.sizeDelta.y, gemContainer.sizeDelta.y);
         gemImageRT.localPosition =
             new Vector3(-0.4f * (gemContainer.sizeDelta.x - gemImageRT.sizeDelta.x), 0, 0);
 
-        SetUIElementSizeToParent(gemTextRT, gemContainer, new Vector2(0.4f, 0.9f));
+        gemText.text = Utils.ToAbbreviatedNumber(dataManager.NumGem);
         gemTextRT.localPosition =
             new Vector3(0, 0, 0);
-        SetTextSize(gemText, 0.04f);
+        SetTextSize(gemText, 0.045f);
+        gemText.rectTransform.sizeDelta = new Vector2(gemText.preferredWidth, gemText.preferredHeight);
 
-        gemAddButtonRT.sizeDelta = 0.25f * new Vector2(gemContainer.sizeDelta.x, gemContainer.sizeDelta.x);
+        gemAddButtonRT.sizeDelta = 0.17f * new Vector2(gemContainer.sizeDelta.x, gemContainer.sizeDelta.x);
         gemAddButtonRT.localPosition =
             new Vector3(0.4f * (gemContainer.sizeDelta.x - gemAddButtonRT.sizeDelta.x), 0, 0);
         //
-
-        bestScoreImage.sizeDelta =
-            0.5f * new Vector2(gameplayTopContainer.sizeDelta.y, gameplayTopContainer.sizeDelta.y);
-        bestScoreRT.localPosition =
-            new Vector3(
-                0.5f * (gameplayTopContainer.sizeDelta.x - menuButtonRT.sizeDelta.x) -
-                0.1f * gameplayTopContainer.sizeDelta.y, 0, 0);
 
         SetTextSize(swapText, 0.045f);
         SetTextSize(changeColorText, 0.045f);
@@ -181,6 +179,10 @@ public class UIManager : MonoBehaviour
         undoGemContainer.localPosition =
             new Vector3(0, -0.45f * (swapButtonRT.sizeDelta.y + swapGemContainer.sizeDelta.y), 0);
 
+        swapGemContainer.GetChild(1).GetComponent<TMP_Text>().text = dataManager.skillCosts[0].ToString();
+        changeColorGemContainer.GetChild(1).GetComponent<TMP_Text>().text = dataManager.skillCosts[1].ToString();
+        undoGemContainer.GetChild(1).GetComponent<TMP_Text>().text = dataManager.skillCosts[2].ToString();
+
         menuButtonRT.sizeDelta = 0.7f * nextBlockImage.sizeDelta;
         menuButtonRT.localPosition =
             new Vector3(
@@ -197,10 +199,15 @@ public class UIManager : MonoBehaviour
         _watchAdGemContainer.localPosition =
             new Vector3(0, -0.3f * (_watchAdGemContainer.sizeDelta.y + swapGemContainer.sizeDelta.y), 0);
 
+        _watchAdGemContainer.GetChild(1).GetComponent<TMP_Text>().text = "+200";
+
         SetTextSize(scoreText, 0.08f);
         SetTextSize(bestScoreText, 0.05f);
         SetTextSize(menuText, 0.05f);
         SetTextSize(nextBlockValueText, 0.07f);
+
+        scoreText.rectTransform.localPosition =
+            new Vector3(0, -0.5f * (gameplayTopContainer.sizeDelta.y - scoreText.preferredHeight), 0);
 
         SetBestScore();
     }
@@ -241,12 +248,16 @@ public class UIManager : MonoBehaviour
 
     private void SetBestScore()
     {
+        bestScoreText.text = dataManager.BestScoreNumber.ToString("F2") + dataManager.ScoreLetter;
+
         bestScoreRT.sizeDelta = new Vector2(bestScoreText.preferredWidth, bestScoreText.preferredHeight);
 
         bestScoreRT.localPosition =
             new Vector3(
                 0.5f * (gameplayTopContainer.sizeDelta.x - bestScoreText.preferredWidth) -
-                0.1f * gameplayTopContainer.sizeDelta.y, 0, 0);
+                0.1f * gameplayTopContainer.sizeDelta.y,
+                gemContainer.localPosition.y,
+                0);
 
         bestScoreImage.localPosition =
             new Vector3(-0.5f * (bestScoreRT.sizeDelta.x + 1.5f * bestScoreImage.sizeDelta.x), 0, 0);
@@ -255,16 +266,22 @@ public class UIManager : MonoBehaviour
     public void SetGemText(int numGem)
     {
         gemText.text = Utils.ToAbbreviatedNumber(numGem);
+        gemText.rectTransform.sizeDelta = new Vector2(gemText.preferredWidth, gemText.preferredHeight);
     }
 
     private void PlayAdForGem()
     {
-        adManager.ShowRewardedAd(() => SetGemText(dataManager.NumGem));
+        adManager.ShowRewardedAd(() =>
+        {
+            dataManager.NumGem += 200;
+            SetGemText(dataManager.NumGem);
+
+            dataManager.SaveIAPData(dataManager.NumGem, dataManager.IsAdRemoved);
+        });
     }
 
     public void OnSwapClicked()
     {
-        swapModePopup.ShowPopup();
         skillManager.SwapSkill();
     }
 
@@ -283,11 +300,11 @@ public class UIManager : MonoBehaviour
         Color initialColor = image.color;
         Color errorColor = Color.red;
 
-        Tween.UISizeDelta(rectTransform, 1.1f * initialDeltaSize, duration: 0.2f)
-            .OnComplete(() => Tween.UISizeDelta(rectTransform, initialDeltaSize, duration: 0.2f));
+        // Tween.UISizeDelta(rectTransform, 1.1f * initialDeltaSize, duration: 0.2f)
+        //     .OnComplete(() => Tween.UISizeDelta(rectTransform, initialDeltaSize, duration: 0.2f));
 
-        Tween.Custom(initialColor, errorColor, duration: 1, onValueChange: newVal => image.color = newVal)
+        Tween.Custom(initialColor, errorColor, duration: 0.25f, onValueChange: newVal => image.color = newVal)
             .OnComplete(() =>
-                Tween.Custom(errorColor, initialColor, duration: 1, onValueChange: newVal => image.color = newVal));
+                Tween.Custom(errorColor, initialColor, duration: 0.25f, onValueChange: newVal => image.color = newVal));
     }
 }

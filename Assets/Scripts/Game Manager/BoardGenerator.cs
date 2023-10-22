@@ -34,6 +34,11 @@ public class BoardGenerator : MonoBehaviour
     {
         get => numLane;
     }
+    
+    public float LaneWidth
+    {
+        get => laneWidth;
+    }
 
     public Vector3[] LanePositions
     {
@@ -42,7 +47,7 @@ public class BoardGenerator : MonoBehaviour
 
     private Vector2 _screenSize;
     
-    void Start()
+    void Awake()
     {
         _screenSize = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
         
@@ -56,7 +61,8 @@ public class BoardGenerator : MonoBehaviour
 
         _lanes = new GameObject[numLane];
 
-        laneWidth = 0.0008f * _screenSize.x;
+        // laneWidth = 0.0008f * _screenSize.x;
+        laneWidth = 0.7f * 8f / 5;
         
         for (int i = 0; i < numLane; i++)
         {
@@ -86,7 +92,7 @@ public class BoardGenerator : MonoBehaviour
         _topBoundY = _lanes[0].transform.position.y + 0.5f * laneRenderer.bounds.size.y;
         _bottomBoundY = _lanes[0].transform.position.y - 0.5f * laneRenderer.bounds.size.y;
 
-        _topBoundY = 0.42f / 0.5f * 8;
-        _bottomBoundY = -0.2f / 0.5f * 8;
+        _topBoundY = 0.32f / 0.5f * 8;
+        _bottomBoundY = -0.15f / 0.5f * 8;
     }
 }

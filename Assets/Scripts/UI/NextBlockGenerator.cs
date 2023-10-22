@@ -58,15 +58,19 @@ public class NextBlockGenerator : MonoBehaviour
             }
         }
 
-        blockImage.color = Constants.AllBlockColors[NextColorIndex];
+        // blockImage.color = Constants.AllBlockColors[NextColorIndex];
         blockNumberText.text = NextBlockValue;
 
-        PlayEffect();
+        PlayEffect(Constants.AllBlockColors[NextColorIndex]);
     }
 
-    private void PlayEffect()
+    private void PlayEffect(Color newColor)
     {
-        Tween.Scale(blockImage.rectTransform, 1.1f, duration: 0.2f, cycles: 2, cycleMode: CycleMode.Yoyo)
-            .SetCycles(false);
+        Tween.Custom(blockImage.color, newColor, duration: 0.35f, cycles: 2, cycleMode: CycleMode.Yoyo
+                , onValueChange: newVal => blockImage.color = newVal)
+            .SetCycles(true);
+
+        // Tween.Color(blockImage, 1.1f, duration: 0.2f, cycles: 2, cycleMode: CycleMode.Yoyo)
+        //     .SetCycles(false);
     }
 }

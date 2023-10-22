@@ -20,7 +20,7 @@ public static class Utils
         return worldPosition;
     }
 
-    public static string ToAbbreviatedNumber(int number)
+    public static string ToAbbreviatedNumber(int number, int decimalPlace = 2)
     {
         // char initialLetter = 'a';
         // string result = score.ToString();
@@ -35,8 +35,8 @@ public static class Utils
 
         string result = number switch
         {
-            > 1000 and < 1000000 => (number / 1000).ToString("F2") + "K",
-            > 1000000 => (number / 1000).ToString("F2") + "M",
+            > 1000 and < 1000000 => (number / 1000).ToString($"F{decimalPlace}") + "K",
+            > 1000000 => (number / 1000).ToString($"F{decimalPlace}") + "M",
             _ => number.ToString()
         };
 

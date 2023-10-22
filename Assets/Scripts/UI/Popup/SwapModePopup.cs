@@ -10,11 +10,14 @@ public class SwapModePopup : Popup
 
     protected override void InitUI()
     {
-        SetTextFontSize(title, 0.03f);
-        SetTextFontSize(description, 0.02f);
+        SetTextFontSize(title, 0.09f);
+        SetTextFontSize(description, 0.05f);
         
-        container.sizeDelta = new Vector2(screenSize.x, 0.3f * screenSize.y);
+        container.sizeDelta = new Vector2(screenSize.x, 0.35f * screenSize.y);
 
+        title.rectTransform.sizeDelta = new Vector2(title.preferredWidth, title.preferredHeight);
+        description.rectTransform.sizeDelta = new Vector2(description.preferredWidth, description.preferredHeight);
+        
         title.rectTransform.localPosition = new Vector3(0, 0.3f * (container.sizeDelta.y - title.preferredHeight), 0);
 
         closeButtonRT.localPosition = new Vector3(0.45f * (container.sizeDelta.x - closeButtonRT.sizeDelta.x),

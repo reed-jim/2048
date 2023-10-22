@@ -14,7 +14,7 @@ public class Block : MonoBehaviour
     private char? _letter;
     private string _value;
     private int _colorIndex;
-    
+
     private bool isMoving;
 
     public float Number
@@ -55,7 +55,7 @@ public class Block : MonoBehaviour
 
         _customMaterialProperty.ChangeColor(color);
     }
-    
+
     public void SetColor(int colorIndex)
     {
         Color color = Constants.AllBlockColors[colorIndex];

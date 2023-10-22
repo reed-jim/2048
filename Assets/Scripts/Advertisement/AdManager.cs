@@ -8,6 +8,7 @@ public class AdManager : MonoBehaviour
 {
     private BannerView _bannerView;
     private RewardedAd _rewardedAd;
+    private InterstitialAd _interstitialAd;
 
     [Header("REFERENCE")] [SerializeField] private DataManager dataManager;
     [SerializeField] private UIManager uiManager;
@@ -19,6 +20,7 @@ public class AdManager : MonoBehaviour
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
             LoadAd();
+            LoadInterstitialAd();
             LoadRewardedAd();
         });
     }
@@ -37,6 +39,14 @@ public class AdManager : MonoBehaviour
   private string _rewardedUnitId = "ca-app-pub-3940256099942544/1712485313";
 #else
   private string _rewardedUnitId = "unused";
+#endif
+
+#if UNITY_ANDROID
+    private string _interstitialUnitId = "ca-app-pub-3940256099942544/1033173712";
+#elif UNITY_IPHONE
+  private string _interstitialUnitId = "ca-app-pub-3940256099942544/4411468910";
+#else
+  private string _interstitialUnitId = "unused";
 #endif
 
     public void CreateBannerView()
@@ -182,12 +192,66 @@ public class AdManager : MonoBehaviour
         };
     }
 
-    public void PlayRewardedAdForGem()
+    public void LoadInterstitialAd()
     {
-        ShowRewardedAd(() =>
+        if (_interstitialAd != null)
         {
-            dataManager.NumGem += 200;
-            uiManager.SetGemText(dataManager.NumGem);
-        });
+            _interstitialAd.Destroy();
+            _interstitialAd = null;
+        }
+
+        var adRequest = new AdRequest();
+
+        InterstitialAd.Load(_interstitialUnitId, adRequest,
+            (InterstitialAd ad, LoadAdError error) =>
+            {
+                if (error != null || ad == null)
+                {
+                    Debug.LogError("interstitial ad failed to load an ad " +
+                                   "with error : " + error);
+                    return;
+                }
+
+                Debug.Log("Interstitial ad loaded with response : "
+                          + ad.GetResponseInfo());
+
+                _interstitialAd = ad;
+                
+                RegisterReloadHandler(_interstitialAd);
+            });
+    }
+
+    public void ShowInterstitialAd()
+    {
+        if (_interstitialAd != null && _interstitialAd.CanShowAd())
+        {
+            Debug.Log("Showing interstitial ad.");
+            _interstitialAd.Show();
+        }
+        else
+        {
+            Debug.LogError("Interstitial ad is not ready yet.");
+        }
+    }
+    
+    private void RegisterReloadHandler(InterstitialAd interstitialAd)
+    {
+        // Raised when the ad closed full screen content.
+        interstitialAd.OnAdFullScreenContentClosed += () =>
+        {
+            Debug.Log("Interstitial Ad full screen content closed.");
+
+            // Reload the ad so that we can show another as soon as possible.
+            LoadInterstitialAd();
+        };
+        // Raised when the ad failed to open full screen content.
+        interstitialAd.OnAdFullScreenContentFailed += (AdError error) =>
+        {
+            Debug.LogError("Interstitial ad failed to open full screen content " +
+                           "with error : " + error);
+
+            // Reload the ad so that we can show another as soon as possible.
+            LoadInterstitialAd();
+        };
     }
 }

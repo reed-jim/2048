@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     private int turn;
 
     private bool _isPaused;
+    private bool _isNewBestBlock;
 
     private InteractMode _interactMode = InteractMode.Normal;
 
@@ -66,6 +67,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private NextBlockGenerator nextBlockGenerator;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private DataManager dataManager;
+    [SerializeField] private AdManager adManager;
 
     [Space] [Header("CUSTOM")] [SerializeField]
     private int numBlock;
@@ -110,6 +112,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        blockWidth = 0.5f * boardGenerator.LaneWidth;
+
         for (int i = 0; i < numBlock; i++)
         {
             blocks[i] = Instantiate(blockPrefab, blockCollection.transform);
@@ -117,14 +121,18 @@ public class GameManager : MonoBehaviour
             _blockControllers[i] = blocks[i].GetComponent<Block>();
             _blockRigidBodies[i] = blocks[i].GetComponent<Rigidbody>();
 
-            _blockNumberTexts[i] = Instantiate(blockNumberTextPrefab, blockNumberTextCollection);
-
             blocks[i].transform.localScale = blockWidth * Vector3.one;
-            _blockNumberTexts[i].gameObject.SetActive(false);
             blocks[i].SetActive(false);
+
+            _blockNumberTexts[i] = Instantiate(blockNumberTextPrefab, blockNumberTextCollection);
+            _blockNumberTexts[i].fontSize = 0.05f * Screen.currentResolution.width;
+            _blockNumberTexts[i].gameObject.SetActive(false);
         }
 
         _blockDistance = 2.2f * blockWidth;
+        highestBlockPositionY =
+            (1 - 0.12f * 2 - uiManager.SafeAreaTopSizeY / Screen.currentResolution.height) *
+            _mainCamera.orthographicSize - _blockDistance;
 
         nextBlockGenerator.GenerateNewBlock();
 
@@ -133,6 +141,8 @@ public class GameManager : MonoBehaviour
 
     private void LoadData()
     {
+        LoadGeneralData();
+
         GameplayData data = dataManager.GameplayData;
 
         if (data.IsSaved)
@@ -177,6 +187,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void LoadGeneralData()
+    {
+        _scoreNumber = dataManager.ScoreNumber;
+        _scoreLetter = dataManager.ScoreLetter;
+    }
+
     public void OnSwipe()
     {
         if (_isPaused) return;
@@ -197,6 +213,8 @@ public class GameManager : MonoBehaviour
         GetDestinationPositionIndex(out rowIndex, out columnIndex);
 
         if (columnIndex == -1) return;
+
+        _isNewBestBlock = false;
 
         SpawnThenMoveBlock(rowIndex, columnIndex);
 
@@ -412,6 +430,16 @@ public class GameManager : MonoBehaviour
         {
             _blockControllers[blockIndex].Number *= 2;
             _blockControllers[blockIndex].SetValue(_blockNumberTexts[blockIndex]);
+
+            if (dataManager.IsNewBestBlock(_blockControllers[blockIndex].Number,
+                    _blockControllers[blockIndex].Letter))
+            {
+                dataManager.BestBlockNumber = _blockControllers[blockIndex].Number;
+                dataManager.BestBlockLetter = _blockControllers[blockIndex].Letter;
+                dataManager.BestBlockColorIndex = _blockControllers[blockIndex].ColorIndex;
+
+                _isNewBestBlock = true;
+            }
 
             EarnScore(_blockControllers[blockIndex].Number, _blockControllers[blockIndex].Letter);
 
@@ -641,6 +669,27 @@ public class GameManager : MonoBehaviour
         turn++;
 
         dataManager.SaveGameplayData(turn, _columnBlockIndexes, _scoreNumber, _scoreLetter, _blockControllers);
+
+        if (dataManager.IsNewBestScore(_scoreNumber, _scoreLetter))
+        {
+            dataManager.BestScoreNumber = _scoreNumber;
+            dataManager.BestScoreLetter = _scoreLetter;
+        }
+
+        dataManager.SaveGeneralData(_scoreNumber, _scoreLetter);
+
+        if (_isNewBestBlock)
+        {
+            uiManager.blockRecordPopup.ShowPopup(dataManager.BestBlockNumber, dataManager.BestBlockLetter,
+                dataManager.BestBlockColorIndex);
+        }
+        else
+        {
+            if (turn % 10 == 0)
+            {
+                adManager.ShowInterstitialAd();
+            }
+        }
     }
 
     private void PushChange(int blockIndex, Vector2Int prevPositionIndex, Vector2Int curPositionIndex)
@@ -742,6 +791,11 @@ public class GameManager : MonoBehaviour
 
         Vector3 mousePosition = Utils.GetMousePosition();
 
+        if (mousePosition.y > boardGenerator.TopBoundY || mousePosition.y < boardGenerator.BottomBoundY)
+        {
+            return;
+        }
+
         float minDistance = float.MaxValue;
         int cachedBlockIndex = -1;
         Vector2Int cachedPositionIndex = Vector2Int.zero;
@@ -805,6 +859,8 @@ public class GameManager : MonoBehaviour
         _selectedBlockPositionIndexes.Clear();
 
         _interactMode = InteractMode.Normal;
+
+        uiManager.swapModePopup.ClosePopup();
     }
 
     #endregion
