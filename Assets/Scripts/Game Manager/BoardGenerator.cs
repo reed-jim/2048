@@ -23,7 +23,7 @@ public class BoardGenerator : MonoBehaviour
         get => _topBoundY;
         set => _topBoundY = value;
     }
-    
+
     public float BottomBoundY
     {
         get => _bottomBoundY;
@@ -34,7 +34,7 @@ public class BoardGenerator : MonoBehaviour
     {
         get => numLane;
     }
-    
+
     public float LaneWidth
     {
         get => laneWidth;
@@ -46,11 +46,11 @@ public class BoardGenerator : MonoBehaviour
     }
 
     private Vector2 _screenSize;
-    
+
     void Awake()
     {
         _screenSize = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
-        
+
         SpawnLanes();
         GenerateBoard();
     }
@@ -63,7 +63,7 @@ public class BoardGenerator : MonoBehaviour
 
         // laneWidth = 0.0008f * _screenSize.x;
         laneWidth = 0.7f * 8f / 5;
-        
+
         for (int i = 0; i < numLane; i++)
         {
             _lanes[i] = Instantiate(lanePrefab, laneCollection.transform);
@@ -88,7 +88,7 @@ public class BoardGenerator : MonoBehaviour
         }
 
         MeshRenderer laneRenderer = _lanes[0].GetComponent<MeshRenderer>();
-        
+
         _topBoundY = _lanes[0].transform.position.y + 0.5f * laneRenderer.bounds.size.y;
         _bottomBoundY = _lanes[0].transform.position.y - 0.5f * laneRenderer.bounds.size.y;
 

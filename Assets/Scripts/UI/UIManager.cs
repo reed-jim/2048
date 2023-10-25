@@ -302,9 +302,12 @@ public class UIManager : MonoBehaviour
 
         // Tween.UISizeDelta(rectTransform, 1.1f * initialDeltaSize, duration: 0.2f)
         //     .OnComplete(() => Tween.UISizeDelta(rectTransform, initialDeltaSize, duration: 0.2f));
+        
+        Tween.Custom(initialColor, errorColor, duration: 0.15f, cycles: 2, cycleMode: CycleMode.Yoyo, onValueChange: newVal => image.color = newVal)
+            .SetCycles(false);
 
-        Tween.Custom(initialColor, errorColor, duration: 0.25f, onValueChange: newVal => image.color = newVal)
-            .OnComplete(() =>
-                Tween.Custom(errorColor, initialColor, duration: 0.25f, onValueChange: newVal => image.color = newVal));
+        // Tween.Custom(initialColor, errorColor, duration: 0.15f, onValueChange: newVal => image.color = newVal)
+        //     .OnComplete(() =>
+        //         Tween.Custom(errorColor, initialColor, duration: 0.15f, onValueChange: newVal => image.color = newVal));
     }
 }

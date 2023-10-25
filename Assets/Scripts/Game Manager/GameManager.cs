@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PrimeTween;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
     private int turn;
 
     private bool _isPaused;
-    private bool _isNewBestBlock;
+    private int newBestBlockIndex;
 
     private InteractMode _interactMode = InteractMode.Normal;
 
@@ -214,7 +215,7 @@ public class GameManager : MonoBehaviour
 
         if (columnIndex == -1) return;
 
-        _isNewBestBlock = false;
+        newBestBlockIndex = -1;
 
         SpawnThenMoveBlock(rowIndex, columnIndex);
 
@@ -423,6 +424,9 @@ public class GameManager : MonoBehaviour
             }
 
             _blockControllers[mergedBlockIndex].IsMoving = true;
+
+            ChangeMergedBlocksColor(blockIndex, mergedBlockIndex);
+
             StartCoroutine(TextFollowBlock(mergedBlockIndex));
         }
 
@@ -438,7 +442,7 @@ public class GameManager : MonoBehaviour
                 dataManager.BestBlockLetter = _blockControllers[blockIndex].Letter;
                 dataManager.BestBlockColorIndex = _blockControllers[blockIndex].ColorIndex;
 
-                _isNewBestBlock = true;
+                newBestBlockIndex = blockIndex;
             }
 
             EarnScore(_blockControllers[blockIndex].Number, _blockControllers[blockIndex].Letter);
@@ -528,6 +532,25 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void ChangeMergedBlocksColor(int blockIndex, int mergedBlockIndex)
+    {
+        int newColorIndex = Random.Range(0, 5);
+        Color newColor = Constants.AllBlockColors[newColorIndex];
+
+        _blockControllers[mergedBlockIndex].TweenColor(
+            Constants.AllBlockColors[_blockControllers[blockIndex].ColorIndex], 0.2f, () =>
+            {
+                _blockControllers[mergedBlockIndex].TweenColor(
+                    newColor, 0.4f, () => { }
+                );
+            }
+        );
+
+        _blockControllers[blockIndex].TweenColor(
+            newColor, 0.6f, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
+        );
     }
 
     private void MoveAllBlocksUp()
@@ -678,10 +701,10 @@ public class GameManager : MonoBehaviour
 
         dataManager.SaveGeneralData(_scoreNumber, _scoreLetter);
 
-        if (_isNewBestBlock)
+        if (newBestBlockIndex != -1)
         {
             uiManager.blockRecordPopup.ShowPopup(dataManager.BestBlockNumber, dataManager.BestBlockLetter,
-                dataManager.BestBlockColorIndex);
+                dataManager.BestBlockColorIndex, onX2RewardedAdCompleted: X2BlockValue);
         }
         else
         {
@@ -690,6 +713,18 @@ public class GameManager : MonoBehaviour
                 adManager.ShowInterstitialAd();
             }
         }
+    }
+
+    private void X2BlockValue()
+    {
+        _blockControllers[newBestBlockIndex].Number *= 2;
+        _blockControllers[newBestBlockIndex].SetValue(_blockNumberTexts[newBestBlockIndex]);
+
+        dataManager.BestBlockNumber = _blockControllers[newBestBlockIndex].Number;
+        dataManager.BestBlockLetter = _blockControllers[newBestBlockIndex].Letter;
+
+        uiManager.blockRecordPopup.UpdateBestBlock(_blockControllers[newBestBlockIndex].Number,
+            _blockControllers[newBestBlockIndex].Letter);
     }
 
     private void PushChange(int blockIndex, Vector2Int prevPositionIndex, Vector2Int curPositionIndex)

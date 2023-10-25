@@ -1,4 +1,5 @@
 using System;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -12,14 +13,22 @@ public class MenuScreen : MonoBehaviour
     [SerializeField] private Button dailyRewardButton;
     [SerializeField] private Button shopButton;
 
-    [SerializeField] private GameObject dailyRewardContainer;
-    [SerializeField] private GameObject shopContainer;
-
     [SerializeField] private RectTransform topContainer;
     [SerializeField] private RectTransform gemContainer;
     [SerializeField] private RectTransform bestScoreContainer;
+    [SerializeField] private Image gemImage;
+    [SerializeField] private Image crownImage;
+    [SerializeField] public TMP_Text gemText;
     [SerializeField] private TMP_Text bestScoreText;
-    [SerializeField] private TMP_Text gemText;
+
+    [SerializeField] private Image bestBlockImage;
+    [SerializeField] private TMP_Text bestBlockNumberText;
+
+    [Header("POPUP")] [SerializeField] private ShopPopup shopPopup;
+    [SerializeField] private DailyRewardPopup dailyRewardPopup;
+    [SerializeField] private LoadingPopup loadingPopup;
+
+    [Header("REFERENCE")] [SerializeField] private DataManager dataManager;
 
     private Vector2 _screenSize;
 
@@ -34,6 +43,8 @@ public class MenuScreen : MonoBehaviour
         shopButton.onClick.AddListener(ShowShopPopup);
 
         InitUI();
+
+        LoadData();
     }
 
     private void InitUI()
@@ -48,20 +59,86 @@ public class MenuScreen : MonoBehaviour
         gemContainer.localPosition = new Vector3(-0.4f * (topContainer.sizeDelta.x - gemContainer.sizeDelta.x), 0, 0);
         bestScoreContainer.localPosition =
             new Vector3(0.4f * (topContainer.sizeDelta.x - bestScoreContainer.sizeDelta.x), 0, 0);
+
+        gemImage.rectTransform.sizeDelta = 0.25f * new Vector2(gemContainer.sizeDelta.x, gemContainer.sizeDelta.x);
+        crownImage.rectTransform.sizeDelta =
+            0.25f * new Vector2(bestScoreContainer.sizeDelta.x, bestScoreContainer.sizeDelta.x);
+
+        gemImage.rectTransform.localPosition =
+            new Vector3(-0.4f * (gemContainer.sizeDelta.x - gemImage.rectTransform.sizeDelta.x), 0, 0);
+
+        crownImage.rectTransform.localPosition =
+            new Vector3(-0.4f * (bestScoreContainer.sizeDelta.x - crownImage.rectTransform.sizeDelta.x), 0, 0);
+
+        gemText.rectTransform.sizeDelta = new Vector2(0.65f * gemContainer.sizeDelta.x, gemText.preferredHeight);
+        gemText.rectTransform.localPosition =
+            new Vector3(
+                gemImage.rectTransform.localPosition.x +
+                0.5f * (gemImage.rectTransform.sizeDelta.x + gemText.rectTransform.sizeDelta.x), 0, 0);
+
+        SetSize(bestScoreText.rectTransform, 0.65f * bestScoreContainer.sizeDelta.x, gemText.preferredHeight);
+        SetLocalPositionX(bestScoreText.rectTransform,
+            crownImage.rectTransform.localPosition.x +
+            0.5f * (crownImage.rectTransform.sizeDelta.x + bestScoreText.rectTransform.sizeDelta.x));
+
+        // bestScoreText.rectTransform.sizeDelta =
+        //     new Vector2(0.65f * bestScoreContainer.sizeDelta.x, gemText.preferredHeight);
+        // bestScoreText.rectTransform.localPosition =
+        //     new Vector3(
+        //         crownImage.rectTransform.localPosition.x +
+        //         0.5f * (crownImage.rectTransform.sizeDelta.x + bestScoreText.rectTransform.sizeDelta.x), 0, 0);
+
+        AnimatePlayButton();
+    }
+
+    private void SetSize(RectTransform target, float width, float height)
+    {
+        target.sizeDelta = new Vector2(width, height);
+    }
+
+    private void SetLocalPosition(RectTransform target, float x, float y)
+    {
+        target.localPosition = new Vector3(x, y, 0);
+    }
+
+    private void SetLocalPositionX(RectTransform target, float x)
+    {
+        SetLocalPosition(target, x, 0);
+    }
+
+    private void SetLocalPositionY(RectTransform target, float y)
+    {
+        SetLocalPosition(target, 0, y);
+    }
+
+    private void LoadData()
+    {
+        gemText.text = Utils.ToAbbreviatedNumber(dataManager.NumGem);
+        bestScoreText.text = dataManager.BestScoreNumber.ToString("F2") + dataManager.BestScoreLetter;
+
+        bestBlockImage.color = Constants.AllBlockColors[dataManager.BestBlockColorIndex];
+        bestBlockNumberText.text = dataManager.BestBlockNumber.ToString("F0") + dataManager.BestBlockLetter;
     }
 
     private void GoToGameplay()
     {
-        Addressables.LoadSceneAsync("Gameplay");
+        Tween.Delay(1.5f).OnComplete(() => Addressables.LoadSceneAsync("Gameplay"));
+
+        loadingPopup.ShowPopup();
     }
 
     private void ShowDailyRewardPopup()
     {
-        dailyRewardContainer.SetActive(true);
+        dailyRewardPopup.ShowPopup();
     }
 
     private void ShowShopPopup()
     {
-        shopContainer.SetActive(true);
+        shopPopup.ShowPopup();
+    }
+
+    private void AnimatePlayButton()
+    {
+        Tween.Scale(_playButtonRT, 1.05f, duration: 0.5f, cycles: -1, cycleMode: CycleMode.Yoyo);
     }
 }

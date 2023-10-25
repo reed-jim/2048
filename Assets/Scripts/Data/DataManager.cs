@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -14,6 +15,8 @@ public class DataManager : MonoBehaviour
 
     private int _numGem;
     private bool _isAdRemoved;
+
+    private DailyRewardData _dailyRewardData;
 
     public float ScoreNumber
     {
@@ -67,10 +70,17 @@ public class DataManager : MonoBehaviour
         set => _isAdRemoved = value;
     }
 
+    public DailyRewardData DailyRewardData
+    {
+        get => _dailyRewardData;
+        set => _dailyRewardData = value;
+    }
+
     public int[] skillCosts = { 125, 150, 75 };
 
     private string[] iapValues = { "Remove Ad", "200", "200", "1000", "5000", "20000", "50000", "100000" };
     private string[] iapCosts = { "2.99", "Watch Ad", "0.99", "2.99", "3.99", "5.99", "11.99", "12.99" };
+    private int[] dailyRewards = { 50, 110, 180, 260, 350, 450, 1999, };
 
     public string[] IapValues
     {
@@ -80,6 +90,11 @@ public class DataManager : MonoBehaviour
     public string[] IapCosts
     {
         get => iapCosts;
+    }
+
+    public int[] DailyRewards
+    {
+        get => dailyRewards;
     }
 
     #region Management Variable
@@ -95,13 +110,15 @@ public class DataManager : MonoBehaviour
     #endregion
 
 #if UNITY_EDITOR
-    private string _gameplayDataPath = "Assets/Data/Gameplay/gameplayData.json";
-    private string _generalDataPath = "Assets/Data/Gameplay/generalData.json";
-    private string _iapDataPath = "Assets/Data/Gameplay/iapData.json";
+    private string _gameplayDataPath = "Assets/Data/Gameplay/gameplay_data.json";
+    private string _generalDataPath = "Assets/Data/Gameplay/general_data.json";
+    private string _iapDataPath = "Assets/Data/Gameplay/iap_data.json";
+    private string _dailyRewardDataPath = "Assets/Data/Gameplay/daily_reward_data.json";
 #elif UNITY_ANDROID
-    private string _gameplayDataPath = Path.Combine(Application.persistentDataPath,"gameplayData.json");
-    private string _generalDataPath = Path.Combine(Application.persistentDataPath,"generalData.json");
-    private string _iapDataPath = Path.Combine(Application.persistentDataPath,"iapData.json");
+    private string _gameplayDataPath = Path.Combine(Application.persistentDataPath,"gameplay_data.json");
+    private string _generalDataPath = Path.Combine(Application.persistentDataPath,"general_data.json");
+    private string _iapDataPath = Path.Combine(Application.persistentDataPath,"iap_data.json");
+    private string _dailyRewardDataPath = Path.Combine(Application.persistentDataPath,"daily_reward_data.json");
 #endif
 
     private void Awake()
@@ -112,12 +129,17 @@ public class DataManager : MonoBehaviour
         _scoreLetter = generalData.ScoreLetter;
         _bestScoreNumber = generalData.BestScoreNumber;
         _bestScoreLetter = generalData.BestScoreLetter;
+        _bestBlockNumber = generalData.BestBlockNumber;
+        _bestBlockLetter = generalData.BestBlockLetter;
+        _bestBlockColorIndex = generalData.BestBlockColorIndex;
 
         IAPData iapData = LoadIAPData();
 
         _numGem = iapData.NumGem;
         _isAdRemoved = iapData.IsAdRemoved;
-        
+
+        _dailyRewardData = LoadDailyRewardData();
+
         GameplayData = LoadGameplayData();
     }
 
@@ -178,6 +200,44 @@ public class DataManager : MonoBehaviour
         else
         {
             return new IAPData();
+        }
+    }
+
+    public void SaveDailyRewardData()
+    {
+        _dailyRewardData.NumDayGetReward++;
+        _dailyRewardData.LastTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        File.WriteAllText(_dailyRewardDataPath, JsonConvert.SerializeObject(_dailyRewardData));
+    }
+
+    public DailyRewardData LoadDailyRewardData()
+    {
+        if (File.Exists(_dailyRewardDataPath))
+        {
+            return JsonConvert.DeserializeObject<DailyRewardData>(
+                File.ReadAllText(_dailyRewardDataPath));
+        }
+        else
+        {
+            return new DailyRewardData();
+        }
+    }
+
+    public bool IsDailyRewardAvailable()
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        long lastTotalDay = (_dailyRewardData.LastTimestamp - _dailyRewardData.LastTimestamp % 86400) / 86400;
+        long curTotalDay = (now - now % 86400) / 86400;
+
+        if (curTotalDay - lastTotalDay >= 1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -482,5 +542,33 @@ public class IAPData
     {
         _numGem = numGem;
         _isAdRemoved = isAdRemoved;
+    }
+}
+
+public class DailyRewardData
+{
+    private int _numDayGetReward;
+    private long _lastTimestamp;
+
+    public int NumDayGetReward
+    {
+        get => _numDayGetReward;
+        set => _numDayGetReward = value;
+    }
+
+    public long LastTimestamp
+    {
+        get => _lastTimestamp;
+        set => _lastTimestamp = value;
+    }
+
+    public DailyRewardData()
+    {
+    }
+
+    public DailyRewardData(int numDayGetReward, int newTimestamp)
+    {
+        _numDayGetReward = numDayGetReward;
+        _lastTimestamp = newTimestamp;
     }
 }

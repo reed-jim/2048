@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using PrimeTween;
 using TMPro;
 using UnityEngine;
 
@@ -41,6 +42,8 @@ public class Block : MonoBehaviour
 
     public bool IsMoving { get; set; }
 
+    public delegate void OnTweenColorCompleted();
+
     void Awake()
     {
         _customMaterialProperty = GetComponent<CustomMaterialProperty>();
@@ -63,6 +66,15 @@ public class Block : MonoBehaviour
         _customMaterialProperty.ChangeColor(color);
 
         ColorIndex = colorIndex;
+    }
+
+    public void TweenColor(Color newColor, float duration, OnTweenColorCompleted onTweenColorCompleted)
+    {
+        Color currentColor = Constants.AllBlockColors[ColorIndex];
+
+        Tween.Custom(currentColor, newColor, duration: duration,
+                onValueChange: newVal => _customMaterialProperty.ChangeColor(newVal))
+            .OnComplete(() => onTweenColorCompleted());
     }
 
     public void SetNumberAndLetter(string value)
