@@ -61,13 +61,17 @@ public class NextBlockGenerator : MonoBehaviour
         // blockImage.color = Constants.AllBlockColors[NextColorIndex];
         blockNumberText.text = NextBlockValue;
 
-        PlayEffect(Constants.AllBlockColors[NextColorIndex]);
+        PlayEffect(Constants.AllBlockColors[NextColorIndex], Constants.AllBlockTextColors[NextColorIndex]);
     }
 
-    private void PlayEffect(Color newColor)
+    private void PlayEffect(Color newColor, Color newTextColor)
     {
         Tween.Custom(blockImage.color, newColor, duration: 0.35f, cycles: 2, cycleMode: CycleMode.Yoyo
                 , onValueChange: newVal => blockImage.color = newVal)
+            .SetCycles(true);
+
+        Tween.Custom(blockNumberText.color, newTextColor, duration: 0.35f, cycles: 2, cycleMode: CycleMode.Yoyo
+                , onValueChange: newVal => blockNumberText.color = newVal)
             .SetCycles(true);
 
         // Tween.Color(blockImage, 1.1f, duration: 0.2f, cycles: 2, cycleMode: CycleMode.Yoyo)

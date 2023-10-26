@@ -65,8 +65,6 @@ public class GameManager : MonoBehaviour
     [Header("SWAP MODE")] private List<int> _selectedBlockIndexes = new List<int>();
     private List<Vector2Int> _selectedBlockPositionIndexes = new List<Vector2Int>();
 
-
-    [Space]
     [Header("REFERENCE")]
     [SerializeField]
     private BoardGenerator boardGenerator;
@@ -76,7 +74,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DataManager dataManager;
     [SerializeField] private AdManager adManager;
 
-    [Space]
+    [Header("POPUP")]
+    [SerializeField] private LosePopup losePopup;
+
     [Header("CUSTOM")]
     [SerializeField]
     private int numBlock;
@@ -544,7 +544,14 @@ public class GameManager : MonoBehaviour
 
     private void ChangeMergedBlocksColor(int blockIndex, int mergedBlockIndex)
     {
-        int newColorIndex = Random.Range(0, 5);
+        List<int> remainingColorIndexes = new List<int>();
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (i != _blockControllers[blockIndex].ColorIndex) remainingColorIndexes.Add(i);
+        }
+
+        int newColorIndex = remainingColorIndexes[Random.Range(0, 4)];
         Color newColor = Constants.AllBlockColors[newColorIndex];
 
         _blockControllers[mergedBlockIndex].TweenColor(
@@ -698,6 +705,13 @@ public class GameManager : MonoBehaviour
 
     private void EndTurn()
     {
+        if (blocks[blocks.Length - 1].activeSelf)
+        {
+            losePopup.ShowPopup(_scoreNumber, _scoreLetter);
+
+            return;
+        }
+
         _isAnotherBlockMoving = false;
         nextBlockGenerator.GenerateNewBlock();
 

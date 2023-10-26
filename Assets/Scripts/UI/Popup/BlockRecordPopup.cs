@@ -54,6 +54,7 @@ public class BlockRecordPopup : Popup
     {
         blockImage.color = Constants.AllBlockColors[colorIndex];
         blockText.text = blockNumber.ToString("F0") + blockLetter;
+        blockText.color = Constants.AllBlockTextColors[colorIndex];
 
         X4Button.onClick.RemoveAllListeners();
         X4Button.onClick.AddListener(() => ShowAdForMultiplyBlockValue());

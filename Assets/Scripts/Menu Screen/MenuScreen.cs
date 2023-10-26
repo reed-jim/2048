@@ -9,6 +9,7 @@ public class MenuScreen : MonoBehaviour
 {
     [Header("UI")][SerializeField] private Button playButton;
     private RectTransform _playButtonRT;
+    [SerializeField] TMP_Text playButtonText;
 
     [SerializeField] private Button dailyRewardButton;
     [SerializeField] private Button shopButton;
@@ -67,6 +68,7 @@ public class MenuScreen : MonoBehaviour
     {
         _playButtonRT.sizeDelta = new Vector2(0.6f * _screenSize.x, 0.1f * _screenSize.y);
         _playButtonRT.localPosition = new Vector3(0, -0.15f * _screenSize.y, 0);
+        SetTextFontSize(playButtonText, 0.1f);
 
         topContainer.sizeDelta = new Vector2(_screenSize.x, 0.05f * _screenSize.y);
         gemContainer.sizeDelta = new Vector2(0.3f * topContainer.sizeDelta.x, 1f * topContainer.sizeDelta.y);
@@ -105,6 +107,11 @@ public class MenuScreen : MonoBehaviour
         //         0.5f * (crownImage.rectTransform.sizeDelta.x + bestScoreText.rectTransform.sizeDelta.x), 0, 0);
 
         AnimatePlayButton();
+    }
+
+     protected void SetTextFontSize(TMP_Text text, float proportion)
+    {
+        text.fontSize = proportion * _screenSize.x;
     }
 
     private void SetSize(RectTransform target, float width, float height)

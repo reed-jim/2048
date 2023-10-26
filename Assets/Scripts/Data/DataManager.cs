@@ -274,6 +274,17 @@ public class DataManager : MonoBehaviour
         }
     }
 
+    public void ResetGameplayData()
+    {
+        GameplayData data = new GameplayData();
+
+        using (StreamWriter file = File.CreateText(_gameplayDataPath))
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Serialize(file, data);
+        }
+    }
+
     public bool IsEnoughGem(SkillType skillType)
     {
         if (_numGem >= skillCosts[(int)skillType]) return true;
