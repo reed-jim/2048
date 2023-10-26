@@ -6,252 +6,316 @@ using UnityEngine;
 
 public class AdManager : MonoBehaviour
 {
-    private BannerView _bannerView;
-    private RewardedAd _rewardedAd;
-    private InterstitialAd _interstitialAd;
+    [Header("AD UNIT")]
+    [SerializeField] private InterstitialAdUnit interstitialAdUnit;
+    [SerializeField] private RewardedAdUnit rewardedAdUnit;
 
-    [Header("REFERENCE")] [SerializeField] private DataManager dataManager;
+    [Header("REFERENCE")][SerializeField] private DataManager dataManager;
     [SerializeField] private UIManager uiManager;
 
     public delegate void OnRewardedAdFinished();
 
     void Start()
     {
-        MobileAds.Initialize((InitializationStatus initStatus) =>
+        SetAdUnitIds();
+
+        if (!MaxSdk.IsInitialized())
         {
-            LoadAd();
-            LoadInterstitialAd();
-            LoadRewardedAd();
-        });
+#if UNITY_EDITOR
+
+#elif UNITY_ANDROID
+            InitAppLovin();
+#endif
+        }
     }
 
-#if UNITY_ANDROID
-    private string _bannerUnitId = "ca-app-pub-3940256099942544/6300978111";
-#elif UNITY_IPHONE
-  private string _bannerUnitId = "ca-app-pub-3940256099942544/2934735716";
-#else
-  private string _bannerUnitId = "unused";
+    void OnDestroy()
+    {
+        rewardedAdUnit.UnregisterEvent();
+    }
+
+#if UNITY_IOS
+string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from your account
+#else // UNITY_ANDROID
+    string _bannerAdUnitId = "51a60ebef89540e0"; // Retrieve the ID from your account
+    private string _interstitialAdUnitId = "1590d1c6dba78b2e";
+    private string rewardedAdUnitId = "05cdd2745d999c36";
 #endif
 
-#if UNITY_ANDROID
-    private string _rewardedUnitId = "ca-app-pub-3940256099942544/5224354917";
-#elif UNITY_IPHONE
-  private string _rewardedUnitId = "ca-app-pub-3940256099942544/1712485313";
-#else
-  private string _rewardedUnitId = "unused";
-#endif
-
-#if UNITY_ANDROID
-    private string _interstitialUnitId = "ca-app-pub-3940256099942544/1033173712";
-#elif UNITY_IPHONE
-  private string _interstitialUnitId = "ca-app-pub-3940256099942544/4411468910";
-#else
-  private string _interstitialUnitId = "unused";
-#endif
-
-    public void CreateBannerView()
+    private void SetAdUnitIds()
     {
-        if (_bannerView != null)
-        {
-            DestroyBannerView();
-        }
-
-        _bannerView = new BannerView(_bannerUnitId, AdSize.Banner, AdPosition.Bottom);
-
-        ListenToAdEvents();
+        interstitialAdUnit.AdUnitId = _interstitialAdUnitId;
+        rewardedAdUnit.AdUnitId = rewardedAdUnitId;
     }
 
-    public void LoadAd()
+    private void InitAppLovin()
     {
-        if (_bannerView == null)
+        MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration sdkConfiguration) =>
         {
-            CreateBannerView();
-        }
-
-        var adRequest = new AdRequest();
-
-        _bannerView.LoadAd(adRequest);
-    }
-
-    public void DestroyBannerView()
-    {
-        if (_bannerView != null)
-        {
-            _bannerView.Destroy();
-            _bannerView = null;
-        }
-    }
-
-    private void ListenToAdEvents()
-    {
-        // Raised when an ad is loaded into the banner view.
-        _bannerView.OnBannerAdLoaded += () =>
-        {
-            Debug.Log("Banner view loaded an ad with response : "
-                      + _bannerView.GetResponseInfo());
+            InitializeBannerAds();
+            interstitialAdUnit.InitializeInterstitialAds();
+            rewardedAdUnit.InitializeRewardedAds();
         };
-        // Raised when an ad fails to load into the banner view.
-        _bannerView.OnBannerAdLoadFailed += (LoadAdError error) =>
-        {
-            Debug.LogError("Banner view failed to load an ad with error : "
-                           + error);
-        };
-        // Raised when the ad is estimated to have earned money.
-        _bannerView.OnAdPaid += (AdValue adValue) =>
-        {
-            Debug.Log(String.Format("Banner view paid {0} {1}.",
-                adValue.Value,
-                adValue.CurrencyCode));
-        };
-        // Raised when an impression is recorded for an ad.
-        _bannerView.OnAdImpressionRecorded += () => { Debug.Log("Banner view recorded an impression."); };
-        // Raised when a click is recorded for an ad.
-        _bannerView.OnAdClicked += () => { Debug.Log("Banner view was clicked."); };
-        // Raised when an ad opened full screen content.
-        _bannerView.OnAdFullScreenContentOpened += () => { Debug.Log("Banner view full screen content opened."); };
-        // Raised when the ad closed full screen content.
-        _bannerView.OnAdFullScreenContentClosed += () => { Debug.Log("Banner view full screen content closed."); };
+
+        MaxSdk.SetSdkKey("lIQyTJDgFJTFiih870xxIKPO6Wfu0KqlHCiw6g13ATdwaVPCnfQldwRQLI07awbBwN6_HT9KmzcKEcsOzM4IXL");
+        // MaxSdk.SetUserId("USER_ID");
+        MaxSdk.InitializeSdk();
     }
 
-    public void LoadRewardedAd()
+    public void InitializeBannerAds()
     {
-        if (_rewardedAd != null)
-        {
-            _rewardedAd.Destroy();
-            _rewardedAd = null;
-        }
+        // Banners are automatically sized to 320×50 on phones and 728×90 on tablets
+        // You may call the utility method MaxSdkUtils.isTablet() to help with view sizing adjustments
+        MaxSdk.CreateBanner(_bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
 
-        var adRequest = new AdRequest();
+        // // Set background or background color for banners to be fully functional
+        // MaxSdk.SetBannerBackgroundColor(bannerAdUnitId,  < YOUR_BANNER_BACKGROUND_COLOR >);
 
-        RewardedAd.Load(_rewardedUnitId, adRequest,
-            (RewardedAd ad, LoadAdError error) =>
-            {
-                if (error != null || ad == null)
-                {
-                    Debug.LogError("Rewarded ad failed to load an ad " +
-                                   "with error : " + error);
-                    return;
-                }
-
-                _rewardedAd = ad;
-
-                RegisterEventHandlers(_rewardedAd);
-                RegisterReloadHandler(_rewardedAd);
-            });
-    }
-
-    public void ShowRewardedAd(OnRewardedAdFinished onRewardedAdFinished)
-    {
-        const string rewardMsg =
-            "Rewarded ad rewarded the user. Type: {0}, amount: {1}.";
-
-        if (_rewardedAd != null && _rewardedAd.CanShowAd())
-        {
-            _rewardedAd.Show((Reward reward) =>
-            {
-                // TODO: Reward the user.
-                onRewardedAdFinished();
-            });
-        }
-    }
-
-    private void RegisterEventHandlers(RewardedAd ad)
-    {
-        // Raised when the ad is estimated to have earned money.
-        ad.OnAdPaid += (AdValue adValue) => { };
-        // Raised when an impression is recorded for an ad.
-        ad.OnAdImpressionRecorded += () => { };
-        // Raised when a click is recorded for an ad.
-        ad.OnAdClicked += () => { };
-        // Raised when an ad opened full screen content.
-        ad.OnAdFullScreenContentOpened += () => { };
-        // Raised when the ad closed full screen content.
-        ad.OnAdFullScreenContentClosed += () => { };
-        // Raised when the ad failed to open full screen content.
-        ad.OnAdFullScreenContentFailed += (AdError error) => { };
-    }
-
-    private void RegisterReloadHandler(RewardedAd ad)
-    {
-        // Raised when the ad closed full screen content.
-        ad.OnAdFullScreenContentClosed += () =>
-        {
-            Debug.Log("Rewarded Ad full screen content closed.");
-
-            // Reload the ad so that we can show another as soon as possible.
-            LoadRewardedAd();
-        };
-        // Raised when the ad failed to open full screen content.
-        ad.OnAdFullScreenContentFailed += (AdError error) =>
-        {
-            Debug.LogError("Rewarded ad failed to open full screen content " +
-                           "with error : " + error);
-
-            // Reload the ad so that we can show another as soon as possible.
-            LoadRewardedAd();
-        };
-    }
-
-    public void LoadInterstitialAd()
-    {
-        if (_interstitialAd != null)
-        {
-            _interstitialAd.Destroy();
-            _interstitialAd = null;
-        }
-
-        var adRequest = new AdRequest();
-
-        InterstitialAd.Load(_interstitialUnitId, adRequest,
-            (InterstitialAd ad, LoadAdError error) =>
-            {
-                if (error != null || ad == null)
-                {
-                    Debug.LogError("interstitial ad failed to load an ad " +
-                                   "with error : " + error);
-                    return;
-                }
-
-                Debug.Log("Interstitial ad loaded with response : "
-                          + ad.GetResponseInfo());
-
-                _interstitialAd = ad;
-                
-                RegisterReloadHandler(_interstitialAd);
-            });
+        MaxSdkCallbacks.Banner.OnAdLoadedEvent += OnBannerAdLoadedEvent;
+        MaxSdkCallbacks.Banner.OnAdLoadFailedEvent += OnBannerAdLoadFailedEvent;
+        MaxSdkCallbacks.Banner.OnAdClickedEvent += OnBannerAdClickedEvent;
+        MaxSdkCallbacks.Banner.OnAdRevenuePaidEvent += OnBannerAdRevenuePaidEvent;
+        MaxSdkCallbacks.Banner.OnAdExpandedEvent += OnBannerAdExpandedEvent;
+        MaxSdkCallbacks.Banner.OnAdCollapsedEvent += OnBannerAdCollapsedEvent;
     }
 
     public void ShowInterstitialAd()
     {
-        if (_interstitialAd != null && _interstitialAd.CanShowAd())
-        {
-            Debug.Log("Showing interstitial ad.");
-            _interstitialAd.Show();
-        }
-        else
-        {
-            Debug.LogError("Interstitial ad is not ready yet.");
-        }
+        interstitialAdUnit.ShowInterstitialAd();
     }
-    
-    private void RegisterReloadHandler(InterstitialAd interstitialAd)
+
+    public void ShowRewardedAd(Action<string, MaxSdk.Reward, MaxSdkBase.AdInfo> onRewardedAdCompleted)
     {
-        // Raised when the ad closed full screen content.
-        interstitialAd.OnAdFullScreenContentClosed += () =>
-        {
-            Debug.Log("Interstitial Ad full screen content closed.");
-
-            // Reload the ad so that we can show another as soon as possible.
-            LoadInterstitialAd();
-        };
-        // Raised when the ad failed to open full screen content.
-        interstitialAd.OnAdFullScreenContentFailed += (AdError error) =>
-        {
-            Debug.LogError("Interstitial ad failed to open full screen content " +
-                           "with error : " + error);
-
-            // Reload the ad so that we can show another as soon as possible.
-            LoadInterstitialAd();
-        };
+        rewardedAdUnit.Show(onRewardedAdCompleted);
     }
+
+    private void ShowBannerAd()
+    {
+        MaxSdk.ShowBanner(_bannerAdUnitId);
+    }
+
+    private void OnBannerAdLoadedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
+    {
+        ShowBannerAd();
+    }
+
+    private void OnBannerAdLoadFailedEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo)
+    {
+    }
+
+    private void OnBannerAdClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
+    {
+    }
+
+    private void OnBannerAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
+    {
+    }
+
+    private void OnBannerAdExpandedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
+    {
+    }
+
+    private void OnBannerAdCollapsedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
+    {
+    }
+
+    //
+    // #if UNITY_ANDROID
+    //     private string _bannerUnitId = "ca-app-pub-3940256099942544/6300978111";
+    // #elif UNITY_IPHONE
+    //   private string _bannerUnitId = "ca-app-pub-3940256099942544/2934735716";
+    // #else
+    //   private string _bannerUnitId = "unused";
+    // #endif
+    //
+    // #if UNITY_ANDROID
+    //     private string _rewardedUnitId = "ca-app-pub-3940256099942544/5224354917";
+    // #elif UNITY_IPHONE
+    //   private string _rewardedUnitId = "ca-app-pub-3940256099942544/1712485313";
+    // #else
+    //   private string _rewardedUnitId = "unused";
+    // #endif
+    //
+    // #if UNITY_ANDROID
+    //     private string _interstitialUnitId = "ca-app-pub-3940256099942544/1033173712";
+    // #elif UNITY_IPHONE
+    //   private string _interstitialUnitId = "ca-app-pub-3940256099942544/4411468910";
+    // #else
+    //   private string _interstitialUnitId = "unused";
+    // #endif
+    //
+    //     public void CreateBannerView()
+    //     {
+    //         if (_bannerView != null)
+    //         {
+    //             DestroyBannerView();
+    //         }
+    //
+    //         _bannerView = new BannerView(_bannerUnitId, AdSize.Banner, AdPosition.Bottom);
+    //
+    //         ListenToAdEvents();
+    //     }
+    //
+    //     public void LoadAd()
+    //     {
+    //         if (_bannerView == null)
+    //         {
+    //             CreateBannerView();
+    //         }
+    //
+    //         var adRequest = new AdRequest();
+    //
+    //         _bannerView.LoadAd(adRequest);
+    //     }
+    //
+    //     public void DestroyBannerView()
+    //     {
+    //         if (_bannerView != null)
+    //         {
+    //             _bannerView.Destroy();
+    //             _bannerView = null;
+    //         }
+    //     }
+    //
+    //     private void ListenToAdEvents()
+    //     {
+    //         // Raised when an ad is loaded into the banner view.
+    //         _bannerView.OnBannerAdLoaded += () => { };
+    //         // Raised when an ad fails to load into the banner view.
+    //         _bannerView.OnBannerAdLoadFailed += (LoadAdError error) => { };
+    //         // Raised when the ad is estimated to have earned money.
+    //         _bannerView.OnAdPaid += (AdValue adValue) => { };
+    //         // Raised when an impression is recorded for an ad.
+    //         _bannerView.OnAdImpressionRecorded += () => { };
+    //         // Raised when a click is recorded for an ad.
+    //         _bannerView.OnAdClicked += () => { };
+    //         // Raised when an ad opened full screen content.
+    //         _bannerView.OnAdFullScreenContentOpened += () => { };
+    //         // Raised when the ad closed full screen content.
+    //         _bannerView.OnAdFullScreenContentClosed += () => { };
+    //     }
+    //
+    //     public void LoadRewardedAd()
+    //     {
+    //         if (_rewardedAd != null)
+    //         {
+    //             _rewardedAd.Destroy();
+    //             _rewardedAd = null;
+    //         }
+    //
+    //         var adRequest = new AdRequest();
+    //
+    //         RewardedAd.Load(_rewardedUnitId, adRequest,
+    //             (RewardedAd ad, LoadAdError error) =>
+    //             {
+    //                 if (error != null || ad == null)
+    //                 {
+    //                     return;
+    //                 }
+    //
+    //                 Debug.Log("test0: rewarded ad " + error);
+    //                 _rewardedAd = ad;
+    //
+    //                 RegisterEventHandlers(_rewardedAd);
+    //                 RegisterReloadHandler(_rewardedAd);
+    //             });
+    //
+    //         Debug.Log("test01: rewarded ad " + _rewardedAd);
+    //     }
+    //
+    //     public void ShowRewardedAd(OnRewardedAdFinished onRewardedAdFinished)
+    //     {
+    //         Debug.Log("test  " + _rewardedAd != null + " / " + _rewardedAd.CanShowAd());
+    //         if (_rewardedAd != null && _rewardedAd.CanShowAd())
+    //         {
+    //             _rewardedAd.Show((Reward reward) =>
+    //             {
+    //                 // TODO: Reward the user.
+    //                 onRewardedAdFinished();
+    //             });
+    //         }
+    //     }
+    //
+    //     private void RegisterEventHandlers(RewardedAd ad)
+    //     {
+    //         // Raised when the ad is estimated to have earned money.
+    //         ad.OnAdPaid += (AdValue adValue) => { };
+    //         // Raised when an impression is recorded for an ad.
+    //         ad.OnAdImpressionRecorded += () => { };
+    //         // Raised when a click is recorded for an ad.
+    //         ad.OnAdClicked += () => { };
+    //         // Raised when an ad opened full screen content.
+    //         ad.OnAdFullScreenContentOpened += () => { };
+    //         // Raised when the ad closed full screen content.
+    //         ad.OnAdFullScreenContentClosed += () => { };
+    //         // Raised when the ad failed to open full screen content.
+    //         ad.OnAdFullScreenContentFailed += (AdError error) => { };
+    //     }
+    //
+    //     private void RegisterReloadHandler(RewardedAd ad)
+    //     {
+    //         // Raised when the ad closed full screen content.
+    //         ad.OnAdFullScreenContentClosed += () =>
+    //         {
+    //             // Reload the ad so that we can show another as soon as possible.
+    //             LoadRewardedAd();
+    //         };
+    //         // Raised when the ad failed to open full screen content.
+    //         ad.OnAdFullScreenContentFailed += (AdError error) =>
+    //         {
+    //             // Reload the ad so that we can show another as soon as possible.
+    //             LoadRewardedAd();
+    //         };
+    //     }
+    //
+    //     public void LoadInterstitialAd()
+    //     {
+    //         if (_interstitialAd != null)
+    //         {
+    //             _interstitialAd.Destroy();
+    //             _interstitialAd = null;
+    //         }
+    //
+    //         var adRequest = new AdRequest();
+    //
+    //         InterstitialAd.Load(_interstitialUnitId, adRequest,
+    //             (InterstitialAd ad, LoadAdError error) =>
+    //             {
+    //                 if (error != null || ad == null)
+    //                 {
+    //                     return;
+    //                 }
+    //
+    //                 _interstitialAd = ad;
+    //
+    //                 RegisterReloadHandler(_interstitialAd);
+    //             });
+    //     }
+    //
+    //     public void ShowInterstitialAd()
+    //     {
+    //         if (_interstitialAd != null && _interstitialAd.CanShowAd())
+    //         {
+    //             _interstitialAd.Show();
+    //         }
+    //         else
+    //         {
+    //         }
+    //     }
+    //
+    //     private void RegisterReloadHandler(InterstitialAd interstitialAd)
+    //     {
+    //         // Raised when the ad closed full screen content.
+    //         interstitialAd.OnAdFullScreenContentClosed += () =>
+    //         {
+    //             // Reload the ad so that we can show another as soon as possible.
+    //             LoadInterstitialAd();
+    //         };
+    //         // Raised when the ad failed to open full screen content.
+    //         interstitialAd.OnAdFullScreenContentFailed += (AdError error) =>
+    //         {
+    //             // Reload the ad so that we can show another as soon as possible.
+    //             LoadInterstitialAd();
+    //         };
+    //     }
 }

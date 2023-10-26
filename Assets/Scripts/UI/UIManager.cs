@@ -1,3 +1,4 @@
+using System;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
@@ -5,9 +6,9 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("PREFAB")] [SerializeField] private RectTransform gemContainerPrefab;
+    [Header("PREFAB")][SerializeField] private RectTransform gemContainerPrefab;
 
-    [Header("UI")] [SerializeField] private Button menuButton;
+    [Header("UI")][SerializeField] private Button menuButton;
     [SerializeField] private Button continueButton;
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private Button undoButton;
@@ -39,12 +40,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RectTransform watchAdButtonRT;
     private RectTransform _watchAdGemContainer;
 
-    [Header("POPUP")] [SerializeField] private ShopPopup shopPopup;
+    [Header("POPUP")][SerializeField] private ShopPopup shopPopup;
     [SerializeField] private PausePopup pausePopup;
     [SerializeField] public SwapModePopup swapModePopup;
     [SerializeField] public BlockRecordPopup blockRecordPopup;
 
-    [Space] [Header("TMP_TEXT")] [SerializeField]
+    [Space]
+    [Header("TMP_TEXT")]
+    [SerializeField]
     private TMP_Text bestScoreText;
 
     [SerializeField] private TMP_Text menuText;
@@ -55,7 +58,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text changeColorText;
     [SerializeField] private TMP_Text undoText;
 
-    [Space] [Header("REFERENCE")] [SerializeField]
+    [Space]
+    [Header("REFERENCE")]
+    [SerializeField]
     private AdManager adManager;
 
     [SerializeField] private DataManager dataManager;
@@ -271,13 +276,15 @@ public class UIManager : MonoBehaviour
 
     private void PlayAdForGem()
     {
-        adManager.ShowRewardedAd(() =>
-        {
-            dataManager.NumGem += 200;
-            SetGemText(dataManager.NumGem);
+        adManager.ShowRewardedAd(onRewardedAdCompleted: OnPlayAdForGemCompleted);
+    }
 
-            dataManager.SaveIAPData(dataManager.NumGem, dataManager.IsAdRemoved);
-        });
+    private void OnPlayAdForGemCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    {
+        dataManager.NumGem += 200;
+        SetGemText(dataManager.NumGem);
+
+        dataManager.SaveIAPData(dataManager.NumGem, dataManager.IsAdRemoved);
     }
 
     public void OnSwapClicked()
@@ -302,7 +309,7 @@ public class UIManager : MonoBehaviour
 
         // Tween.UISizeDelta(rectTransform, 1.1f * initialDeltaSize, duration: 0.2f)
         //     .OnComplete(() => Tween.UISizeDelta(rectTransform, initialDeltaSize, duration: 0.2f));
-        
+
         Tween.Custom(initialColor, errorColor, duration: 0.15f, cycles: 2, cycleMode: CycleMode.Yoyo, onValueChange: newVal => image.color = newVal)
             .SetCycles(false);
 

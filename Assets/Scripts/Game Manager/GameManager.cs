@@ -23,7 +23,7 @@ public enum InteractMode
 
 public class GameManager : MonoBehaviour
 {
-    [Header("OBJECTS")] [SerializeField] private GameObject blockCollection;
+    [Header("OBJECTS")][SerializeField] private GameObject blockCollection;
 
     [SerializeField] private GameObject blockPrefab;
     [SerializeField] private GameObject[] blocks;
@@ -32,13 +32,17 @@ public class GameManager : MonoBehaviour
     private Rigidbody[] _blockRigidBodies;
     private Camera _mainCamera;
 
-    [Space] [Header("UI")] [SerializeField]
+    [Space]
+    [Header("UI")]
+    [SerializeField]
     private TMP_Text blockNumberTextPrefab;
 
     [SerializeField] private RectTransform blockNumberTextCollection;
     private TMP_Text[] _blockNumberTexts;
 
-    [Space] [Header("MANAGEMENT")] [SerializeField]
+    [Space]
+    [Header("MANAGEMENT")]
+    [SerializeField]
     private int turn;
 
     private bool _isPaused;
@@ -62,7 +66,9 @@ public class GameManager : MonoBehaviour
     private List<Vector2Int> _selectedBlockPositionIndexes = new List<Vector2Int>();
 
 
-    [Space] [Header("REFERENCE")] [SerializeField]
+    [Space]
+    [Header("REFERENCE")]
+    [SerializeField]
     private BoardGenerator boardGenerator;
 
     [SerializeField] private NextBlockGenerator nextBlockGenerator;
@@ -70,7 +76,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DataManager dataManager;
     [SerializeField] private AdManager adManager;
 
-    [Space] [Header("CUSTOM")] [SerializeField]
+    [Space]
+    [Header("CUSTOM")]
+    [SerializeField]
     private int numBlock;
 
     [SerializeField] private float blockWidth;
@@ -173,7 +181,7 @@ public class GameManager : MonoBehaviour
                             boardGenerator.LanePositions[i].x,
                             highestBlockPositionY - (_numBlockPerColumn - 1 - j) * _blockDistance,
                             _blockControllers[blockIndex].transform.position.z);
-                        _blockControllers[blockIndex].SetColor();
+                        _blockControllers[blockIndex].SetColor(blockNumber: _blockNumberTexts[blockIndex]);
                         blocks[blockIndex].SetActive(true);
 
                         Vector3 blockPosition = _mainCamera.WorldToScreenPoint(blocks[blockIndex].transform.position);
@@ -239,7 +247,7 @@ public class GameManager : MonoBehaviour
         );
 
         blocks[_currentPoolBlockIndex].transform.position = start;
-        _blockControllers[_currentPoolBlockIndex].SetColor(nextBlockGenerator.NextColorIndex);
+        _blockControllers[_currentPoolBlockIndex].SetColor(nextBlockGenerator.NextColorIndex, _blockNumberTexts[_currentPoolBlockIndex]);
         SetTrail();
         blocks[_currentPoolBlockIndex].SetActive(true);
 
@@ -388,6 +396,8 @@ public class GameManager : MonoBehaviour
 
             if (isLast)
             {
+                ChangeMergedBlocksColor(blockIndex, mergedBlockIndex);
+
                 Tween.Position(blocks[mergedBlockIndex].transform, destination, duration: mergeDuration)
                     .OnComplete(() => OnBlockMerged(mergedBlockIndex, mergedRowIndex, mergedColumnIndex, isLast));
 
@@ -424,8 +434,6 @@ public class GameManager : MonoBehaviour
             }
 
             _blockControllers[mergedBlockIndex].IsMoving = true;
-
-            ChangeMergedBlocksColor(blockIndex, mergedBlockIndex);
 
             StartCoroutine(TextFollowBlock(mergedBlockIndex));
         }
@@ -540,16 +548,20 @@ public class GameManager : MonoBehaviour
         Color newColor = Constants.AllBlockColors[newColorIndex];
 
         _blockControllers[mergedBlockIndex].TweenColor(
-            Constants.AllBlockColors[_blockControllers[blockIndex].ColorIndex], 0.2f, () =>
+            Constants.AllBlockColors[_blockControllers[blockIndex].ColorIndex], 0.3f * mergeDuration, () =>
             {
                 _blockControllers[mergedBlockIndex].TweenColor(
-                    newColor, 0.4f, () => { }
+                    newColor, 0.6f * mergeDuration, () => { }
                 );
             }
         );
 
         _blockControllers[blockIndex].TweenColor(
-            newColor, 0.6f, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
+            newColor, 0.9f * mergeDuration, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
+        );
+
+        Tween.Custom(_blockNumberTexts[blockIndex].color, Constants.AllBlockTextColors[newColorIndex], duration: 0.9f * mergeDuration,
+            onValueChange: newVal => _blockNumberTexts[blockIndex].color = newVal
         );
     }
 
@@ -704,18 +716,18 @@ public class GameManager : MonoBehaviour
         if (newBestBlockIndex != -1)
         {
             uiManager.blockRecordPopup.ShowPopup(dataManager.BestBlockNumber, dataManager.BestBlockLetter,
-                dataManager.BestBlockColorIndex, onX2RewardedAdCompleted: X2BlockValue);
+                dataManager.BestBlockColorIndex);
         }
         else
         {
-            if (turn % 10 == 0)
-            {
-                adManager.ShowInterstitialAd();
-            }
+            // if (turn % 10 == 0)
+            // {
+            //     adManager.ShowInterstitialAd();
+            // }
         }
     }
 
-    private void X2BlockValue()
+    public void X2BlockValue(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
     {
         _blockControllers[newBestBlockIndex].Number *= 2;
         _blockControllers[newBestBlockIndex].SetValue(_blockNumberTexts[newBestBlockIndex]);

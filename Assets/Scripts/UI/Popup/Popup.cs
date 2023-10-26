@@ -16,7 +16,7 @@ public class Popup : MonoBehaviour
 
     protected Vector2 screenSize;
 
-    [Header("REFERENCE")] [SerializeField] private GameManager gameManager;
+    [Header("REFERENCE")] [SerializeField] protected GameManager gameManager;
 
     private void Awake()
     {

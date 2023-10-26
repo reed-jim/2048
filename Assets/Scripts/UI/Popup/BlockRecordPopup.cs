@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class BlockRecordPopup : Popup
 {
+    [Header("UI")]
     [SerializeField] private RectTransform innerContainer;
     [SerializeField] private Image blockImage;
     [SerializeField] private Image crownImage;
@@ -17,7 +18,8 @@ public class BlockRecordPopup : Popup
     [SerializeField] private Button X4Button;
     private RectTransform _x4ButtonRT;
 
-    [Header("REFERENCE")] [SerializeField] private AdManager adManager;
+    [Header("REFERENCE")]
+    [SerializeField] private AdManager adManager;
 
     public delegate void OnX2RewardedAdCompleted();
 
@@ -48,20 +50,20 @@ public class BlockRecordPopup : Popup
         SetLocalPositionY(_x4ButtonRT, -0.4f * (innerContainer.sizeDelta.y - _x4ButtonRT.sizeDelta.y));
     }
 
-    public void ShowPopup(float blockNumber, char? blockLetter, int colorIndex,
-        OnX2RewardedAdCompleted onX2RewardedAdCompleted)
+    public void ShowPopup(float blockNumber, char? blockLetter, int colorIndex)
     {
         blockImage.color = Constants.AllBlockColors[colorIndex];
         blockText.text = blockNumber.ToString("F0") + blockLetter;
 
-        X4Button.onClick.AddListener(() => ShowAdForMultiplyBlockValue(onX2RewardedAdCompleted));
+        X4Button.onClick.RemoveAllListeners();
+        X4Button.onClick.AddListener(() => ShowAdForMultiplyBlockValue());
 
         base.ShowPopup();
     }
 
-    private void ShowAdForMultiplyBlockValue(OnX2RewardedAdCompleted onX2RewardedAdCompleted)
+    private void ShowAdForMultiplyBlockValue()
     {
-        adManager.ShowRewardedAd(() => { onX2RewardedAdCompleted(); });
+        adManager.ShowRewardedAd(onRewardedAdCompleted: gameManager.X2BlockValue);
     }
 
     public void UpdateBestBlock(float blockNumber, char? blockLetter)

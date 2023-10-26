@@ -22,8 +22,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: b1dc1ddb7592950439040ddd3028ed6a
-    m_Address: Menu
+  - m_GUID: daf02f7cbb699524db6ab8672977eba2
+    m_Address: Assets/Storages/Ad Unit/interstitial_ad_unit.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45dd17e0cce46e7439c544076abd1aa1
+    m_Address: Assets/Storages/Ad Unit/rewarded_ad_unit.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 91196f7b9918d244fa007ac77613286b
+    m_Address: Assets/Storages/Event/on_num_gem_updated_event.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0963f6e8f9ff45446940ec43b99fdc82
+    m_Address: Assets/Storages/Event/on_product_purchased_event.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

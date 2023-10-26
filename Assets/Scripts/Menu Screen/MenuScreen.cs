@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class MenuScreen : MonoBehaviour
 {
-    [Header("UI")] [SerializeField] private Button playButton;
+    [Header("UI")][SerializeField] private Button playButton;
     private RectTransform _playButtonRT;
 
     [SerializeField] private Button dailyRewardButton;
@@ -24,11 +24,15 @@ public class MenuScreen : MonoBehaviour
     [SerializeField] private Image bestBlockImage;
     [SerializeField] private TMP_Text bestBlockNumberText;
 
-    [Header("POPUP")] [SerializeField] private ShopPopup shopPopup;
+    [Header("POPUP")][SerializeField] private ShopPopup shopPopup;
     [SerializeField] private DailyRewardPopup dailyRewardPopup;
     [SerializeField] private LoadingPopup loadingPopup;
+    [SerializeField] private RewardClaimPopup rewardClaimPopup;
 
-    [Header("REFERENCE")] [SerializeField] private DataManager dataManager;
+    [Header("REFERENCE")][SerializeField] private DataManager dataManager;
+
+    [Header("EVENT")][SerializeField] private ScriptableStringEvent onProductPurchasedEvent;
+    [SerializeField] private ScriptableEventNoParam onNumGemUpdatedEvent;
 
     private Vector2 _screenSize;
 
@@ -45,6 +49,18 @@ public class MenuScreen : MonoBehaviour
         InitUI();
 
         LoadData();
+    }
+
+    private void OnEnable()
+    {
+        onProductPurchasedEvent.Register(HandlePurchaseIAPCompleted);
+        onNumGemUpdatedEvent.Register(SetGemText);
+    }
+
+    private void OnDisable()
+    {
+        onProductPurchasedEvent.Unregister(HandlePurchaseIAPCompleted);
+        onNumGemUpdatedEvent.Unregister(SetGemText);
     }
 
     private void InitUI()
@@ -140,5 +156,25 @@ public class MenuScreen : MonoBehaviour
     private void AnimatePlayButton()
     {
         Tween.Scale(_playButtonRT, 1.05f, duration: 0.5f, cycles: -1, cycleMode: CycleMode.Yoyo);
+    }
+
+    private void SetGemText()
+    {
+        gemText.text = Utils.ToAbbreviatedNumber(dataManager.NumGem);
+        Debug.Log("test8 " + gemText.text);
+    }
+
+    private void HandlePurchaseIAPCompleted(string productId)
+    {
+        if (productId.Contains("gem"))
+        {
+            int numGemPurchased = int.Parse(productId.Substring(3));
+
+            rewardClaimPopup.ShowPopup(numGemPurchased);
+
+            dataManager.NumGem += numGemPurchased;
+
+            SetGemText();
+        }
     }
 }

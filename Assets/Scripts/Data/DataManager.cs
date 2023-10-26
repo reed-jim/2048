@@ -78,8 +78,9 @@ public class DataManager : MonoBehaviour
 
     public int[] skillCosts = { 125, 150, 75 };
 
+    private string[] productIds = { "remove_ad", "gem200", "gem1000" };
     private string[] iapValues = { "Remove Ad", "200", "200", "1000", "5000", "20000", "50000", "100000" };
-    private string[] iapCosts = { "2.99", "Watch Ad", "0.99", "2.99", "3.99", "5.99", "11.99", "12.99" };
+    private string[] iapCosts = { "2.99", "Watch Ad", "0.99", "1.99", "3.99", "5.99", "11.99", "12.99" };
     private int[] dailyRewards = { 50, 110, 180, 260, 350, 450, 1999, };
 
     public string[] IapValues
@@ -181,6 +182,13 @@ public class DataManager : MonoBehaviour
         {
             return new GeneralData();
         }
+    }
+
+    public void SaveIAPData()
+    {
+        IAPData iapData = new IAPData(_numGem, _isAdRemoved);
+
+        File.WriteAllText(_iapDataPath, JsonConvert.SerializeObject(iapData));
     }
 
     public void SaveIAPData(int numGem, bool isAdRemoved)

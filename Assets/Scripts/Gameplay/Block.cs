@@ -52,18 +52,20 @@ public class Block : MonoBehaviour
         PositionIndex = new Vector2(-1, -1);
     }
 
-    public void SetColor()
+    public void SetColor(TMP_Text blockNumber)
     {
         Color color = Constants.AllBlockColors[ColorIndex];
 
         _customMaterialProperty.ChangeColor(color);
+        blockNumber.color = Constants.AllBlockTextColors[ColorIndex];
     }
 
-    public void SetColor(int colorIndex)
+    public void SetColor(int colorIndex, TMP_Text blockNumber)
     {
         Color color = Constants.AllBlockColors[colorIndex];
 
         _customMaterialProperty.ChangeColor(color);
+        blockNumber.color = Constants.AllBlockTextColors[colorIndex];
 
         ColorIndex = colorIndex;
     }

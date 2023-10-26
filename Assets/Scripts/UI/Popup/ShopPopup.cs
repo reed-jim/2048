@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ShopPopup : Popup
 {
-    [Header("UI")] [SerializeField] private Button itemButtonPrefab;
+    [Header("UI")][SerializeField] private Button itemButtonPrefab;
     [SerializeField] private Button[] itemButtons;
     private Button[] _buyButtons;
     private CodelessIAPButton[] _iapButtons;
@@ -17,14 +17,20 @@ public class ShopPopup : Popup
     private TMP_Text[] _itemCostText;
     private TMP_Text[] _itemValueText;
 
-    [Header("SPRITE")] [SerializeField] private Sprite removeAdSprite;
+    [Header("SPRITE")][SerializeField] private Sprite removeAdSprite;
 
-    [Space] [Header("REFERENCE")] [SerializeField]
+    [Space]
+    [Header("REFERENCE")]
+    [SerializeField]
     private DataManager dataManager;
 
     [SerializeField] private AdManager adManager;
+    [SerializeField] private IAPManager iapManager;
 
-    [Header("CUSTOM")] [SerializeField] private int numItem;
+    [Header("CUSTOM")][SerializeField] private int numItem;
+
+    [Header("EVENT")]
+    [SerializeField] private ScriptableEventNoParam onNumGemUpdatedEvent;
 
     private void Start()
     {
@@ -73,6 +79,7 @@ public class ShopPopup : Popup
             if (i == 0)
             {
                 _gemImages[i].sprite = removeAdSprite;
+                _gemImages[i].rectTransform.sizeDelta *= 1.9f;
             }
 
             SetUIElementSizeToParent(_gemImages[i].rectTransform, _itemButtonRTs[i], new Vector2(0.08f, 0.4f));
@@ -92,17 +99,31 @@ public class ShopPopup : Popup
             _buyButtonRTs[i].localPosition =
                 new Vector3(0.45f * (_itemButtonRTs[i].sizeDelta.x - _buyButtonRTs[i].sizeDelta.x), 0, 0);
 
-            // if (i == 1)
-            // {
-            //     _buyButtons[i].onClick.AddListener(OnGem);
-            // }
-            //
-            // _iapButtons[i].onPurchaseComplete.AddListener(OnGem);
+            if (i == 1)
+            {
+                _buyButtons[i].onClick.AddListener(OnWatchAdForGemButtonPressed);
+            }
+            else
+            {
+                _buyButtons[i].onClick.AddListener(() => OnBuyButtonPressed("gem200"));
+            }
         }
     }
 
-    private void OnGem(Product product)
+    private void OnBuyButtonPressed(string productId)
     {
-        adManager.ShowRewardedAd(() => dataManager.NumGem += 100);
+        iapManager.BuyProducts(productId);
+    }
+
+    private void OnWatchAdForGemButtonPressed()
+    {
+        adManager.ShowRewardedAd(onRewardedAdCompleted: HandleOnRewardedAdCompleted);
+    }
+
+    private void HandleOnRewardedAdCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    {
+        dataManager.NumGem += 100;
+        dataManager.SaveIAPData();
+        onNumGemUpdatedEvent.Raise();
     }
 }

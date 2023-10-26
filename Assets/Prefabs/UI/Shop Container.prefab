@@ -232,9 +232,13 @@ MonoBehaviour:
   itemButtonPrefab: {fileID: 3945320711023589322, guid: 4db1e0a6f1003fc4cbd586a0f99413a0,
     type: 3}
   itemButtons: []
+  removeAdSprite: {fileID: 21300000, guid: 41121953dffda7c4b8f4d927ee10c8f2, type: 3}
   dataManager: {fileID: 0}
   adManager: {fileID: 0}
+  iapManager: {fileID: 0}
   numItem: 0
+  onNumGemUpdatedEvent: {fileID: 11400000, guid: 91196f7b9918d244fa007ac77613286b,
+    type: 2}
 --- !u!1001 &8061492492482590776
 PrefabInstance:
   m_ObjectHideFlags: 0

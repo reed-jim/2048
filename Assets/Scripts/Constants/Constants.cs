@@ -18,6 +18,20 @@ public static class Constants
         FromRGB(23, 139, 216)
     };
 
+     public static Color[] AllBlockTextColors =
+    {
+        // new Color(255f / 255, 54f / 255, 54f / 255, 1),
+        // new Color(252f / 255, 205f / 255, 54f / 255, 1),
+        // new Color(137f / 255, 255f / 255, 54f / 255, 1),
+        // new Color(54f / 255, 255f / 255, 242f / 255, 1),
+        // new Color(215f / 255, 54f / 255, 255f / 255, 1),
+        Color.white,
+        Color.black,
+        Color.white,
+        Color.black,
+        Color.white
+    };
+
     private static Color FromRGB(int r, int g, int b)
     {
         return new Color(r / 255f, g / 255f, b / 255f, 1);
