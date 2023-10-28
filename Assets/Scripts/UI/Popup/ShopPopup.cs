@@ -133,14 +133,14 @@ public class ShopPopup : Popup
     }
 
     private void OnBuyButtonPressed(string productId)
-    {   
+    {
         AudioManager.Instance.PlayPopupSound();
 
         iapManager.BuyProducts(productId);
     }
 
     private void OnWatchAdForGemButtonPressed()
-    {   
+    {
         AudioManager.Instance.PlayPopupSound();
 
         if (dataManager.IsAdRemoved)
@@ -164,5 +164,7 @@ public class ShopPopup : Popup
         dataManager.NumGem += 200;
         dataManager.SaveIAPData();
         onNumGemUpdatedEvent.Raise();
+
+        rewardClaimPopup.ShowPopup(200);
     }
 }

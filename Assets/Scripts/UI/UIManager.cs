@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    #region PROPERTY
     [Header("PREFAB")][SerializeField] private RectTransform gemContainerPrefab;
 
     [Header("UI")][SerializeField] private Button menuButton;
@@ -85,6 +86,7 @@ public class UIManager : MonoBehaviour
     {
         get => _safeAreaTopSizeY;
     }
+    #endregion
 
     private void OnEnable()
     {
@@ -116,16 +118,6 @@ public class UIManager : MonoBehaviour
         InitUI();
     }
 
-    private void SetUIElementSizeToParent(RectTransform target, RectTransform parent, Vector2 proportional)
-    {
-        target.sizeDelta = new Vector2(proportional.x * parent.sizeDelta.x, proportional.y * parent.sizeDelta.y);
-    }
-
-    private void SetTextSize(TMP_Text text, float proportion)
-    {
-        text.fontSize = (int)(proportion * _screenSize.x);
-    }
-
     private void InitUI()
     {
         RectTransform swapButtonRT = swapButton.GetComponent<RectTransform>();
@@ -136,10 +128,8 @@ public class UIManager : MonoBehaviour
         UtilsUI.SetSize(gameplayTopContainer, 1f * _screenSize.x, 0.12f * _screenSize.y);
         UtilsUI.SetSize(gameplayBottomContainer, 1f * _screenSize.x, 0.35f * _screenSize.y);
 
-        gameplayTopContainer.localPosition =
-            new Vector3(0, 0.5f * (_screenSize.y - gameplayTopContainer.sizeDelta.y) - _safeAreaTopSizeY, 0);
-        gameplayBottomContainer.localPosition =
-            new Vector3(0, -0.5f * (_screenSize.y - gameplayBottomContainer.sizeDelta.y), 0);
+        UtilsUI.SetLocalPositionY(gameplayTopContainer, 0.5f * (_screenSize.y - gameplayTopContainer.sizeDelta.y) - _safeAreaTopSizeY);
+        UtilsUI.SetLocalPositionY(gameplayBottomContainer, -0.5f * (_screenSize.y - gameplayBottomContainer.sizeDelta.y));
 
         topOutsideSafeAreaFill.sizeDelta = new Vector2(_screenSize.x, _safeAreaTopSizeY);
         topOutsideSafeAreaFill.localPosition = new Vector3(0,
@@ -156,14 +146,11 @@ public class UIManager : MonoBehaviour
                 0);
 
         SetSizeKeepRatioX(gemImageRT.GetComponent<Image>(), 0.6f * gemContainer.sizeDelta.y);
-        gemImageRT.localPosition =
-            new Vector3(-0.4f * (gemContainer.sizeDelta.x - gemImageRT.sizeDelta.x), 0, 0);
-
+        UtilsUI.SetLocalPositionX(gemImageRT, -0.4f * (gemContainer.sizeDelta.x - gemImageRT.sizeDelta.x));
+    
         gemText.text = Utils.ToAbbreviatedNumber(dataManager.NumGem);
-        gemTextRT.localPosition =
-            new Vector3(0, 0, 0);
         UtilsUI.SetTextFontSize(gemText, 0.035f);
-        gemText.rectTransform.sizeDelta = new Vector2(gemText.preferredWidth, gemText.preferredHeight);
+        UtilsUI.SetTextPreferredSize(gemText);
 
         SetSizeKeepRatioX(gemAddButtonRT.GetComponent<Image>(), 0.6f * gemContainer.sizeDelta.y);
         UtilsUI.SetLocalPositionX(gemAddButtonRT, 0.4f * (gemContainer.sizeDelta.x - gemAddButtonRT.sizeDelta.x));
@@ -184,7 +171,7 @@ public class UIManager : MonoBehaviour
         UtilsUI.SetLocalPositionX(bestScoreText.rectTransform,
             bestScoreImage.rectTransform.localPosition.x +
             0.5f * (bestScoreImage.rectTransform.sizeDelta.x + bestScoreText.rectTransform.sizeDelta.x));
-        // SetBestScore();
+        //
 
         // BOTTOM
         SetTextSize(swapText, 0.045f);
@@ -195,17 +182,11 @@ public class UIManager : MonoBehaviour
         SetUIElementSizeToParent(changeColorButtonRT, gameplayBottomContainer, new Vector2(0.35f, 0.15f));
         SetUIElementSizeToParent(undoButtonRT, gameplayBottomContainer, new Vector2(0.2f, 0.15f));
 
-        swapButtonRT.localPosition =
-            new Vector3(-0.55f * (changeColorButtonRT.sizeDelta.x + swapButtonRT.sizeDelta.x),
-                changeColorButtonRT.localPosition.y, 0);
-        undoButtonRT.localPosition =
-            new Vector3(0.55f * (changeColorButtonRT.sizeDelta.x + undoButtonRT.sizeDelta.x),
-                changeColorButtonRT.localPosition.y, 0);
+        UtilsUI.SetLocalPosition(swapButtonRT, -0.55f * (changeColorButtonRT.sizeDelta.x + swapButtonRT.sizeDelta.x), changeColorButtonRT.localPosition.y);
+        UtilsUI.SetLocalPosition(undoButtonRT, 0.55f * (changeColorButtonRT.sizeDelta.x + undoButtonRT.sizeDelta.x), changeColorButtonRT.localPosition.y);
 
-        nextBlockImage.sizeDelta =
-            0.2f * new Vector2(gameplayBottomContainer.sizeDelta.x, gameplayBottomContainer.sizeDelta.x);
-        nextBlockImage.localPosition =
-            new Vector3(0, 0.45f * (gameplayBottomContainer.sizeDelta.y - nextBlockImage.sizeDelta.y), 0);
+        UtilsUI.SetSizeEqual(nextBlockImage, 0.2f * gameplayBottomContainer.sizeDelta.x);
+        UtilsUI.SetLocalPositionY(nextBlockImage, 0.45f * (gameplayBottomContainer.sizeDelta.y - nextBlockImage.sizeDelta.y));
 
         swapGemContainer = Instantiate(gemContainerPrefab, swapButtonRT);
         changeColorGemContainer = Instantiate(gemContainerPrefab, changeColorButtonRT);
@@ -245,14 +226,13 @@ public class UIManager : MonoBehaviour
         _watchAdGemContainer.GetChild(1).GetComponent<TMP_Text>().text = "+200";
 
         SetTextSize(scoreText, 0.08f);
-        SetTextSize(bestScoreText, 0.05f);
         SetTextSize(menuText, 0.05f);
         SetTextSize(nextBlockValueText, 0.07f);
 
-        scoreText.rectTransform.localPosition =
-            new Vector3(0, -0.5f * (gameplayTopContainer.sizeDelta.y - scoreText.preferredHeight), 0);
+        UtilsUI.SetLocalPositionY(scoreText.rectTransform, -0.5f * (gameplayTopContainer.sizeDelta.y - scoreText.preferredHeight));
     }
 
+    #region OPEN/CLOSE POPUP
     private void OpenMenu()
     {
         pausePopup.ShowPopup();
@@ -271,7 +251,9 @@ public class UIManager : MonoBehaviour
     public void ShowLosePopup()
     {
     }
+    #endregion
 
+    #region SET TEXT
     public void SetScoreText(float scoreNumber, char? scoreLetter)
     {
         if (scoreLetter == null)
@@ -315,61 +297,27 @@ public class UIManager : MonoBehaviour
         gemText.text = Utils.ToAbbreviatedNumber(numGem);
         gemText.rectTransform.sizeDelta = new Vector2(gemText.preferredWidth, gemText.preferredHeight);
     }
+    #endregion
+
+    #region UTIL
+    private void SetUIElementSizeToParent(RectTransform target, RectTransform parent, Vector2 proportional)
+    {
+        target.sizeDelta = new Vector2(proportional.x * parent.sizeDelta.x, proportional.y * parent.sizeDelta.y);
+    }
+
+    private void SetTextSize(TMP_Text text, float proportion)
+    {
+        text.fontSize = (int)(proportion * _screenSize.x);
+    }
 
     private void SetSizeKeepRatioX(Image target, float height)
     {
         float ratio = target.sprite.rect.size.x / target.sprite.rect.size.y;
         target.rectTransform.sizeDelta = new Vector2(height * ratio, height);
     }
+    #endregion
 
-    private void PlayAdForGem()
-    {
-        if (dataManager.IsAdRemoved)
-        {
-            GiveAdGemReward();
-            watchAdForGemButton.gameObject.SetActive(false);
-        }
-        else
-        {
-            adManager.ShowRewardedAd(onRewardedAdCompleted: OnPlayAdForGemCompleted);
-        }
-    }
-
-    private void OnPlayAdForGemCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
-    {
-        GiveAdGemReward();
-    }
-
-    private void GiveAdGemReward()
-    {
-        dataManager.NumGem += 200;
-        SetGemText(dataManager.NumGem);
-
-        dataManager.SaveIAPData();
-    }
-
-    private void HandlePurchaseIAPCompleted(string productId)
-    {
-        if (productId.Contains("gem"))
-        {
-            int numGemPurchased = int.Parse(productId.Substring(3));
-
-            rewardClaimPopup.ShowPopup(numGemPurchased);
-
-            dataManager.NumGem += numGemPurchased;
-
-            SetGemText();
-        }
-        else if (productId == "remove_ad")
-        {
-            dataManager.IsAdRemoved = true;
-
-            adManager.DestroyBannerAd();
-        }
-
-        dataManager.SaveIAPData();
-    }
-
+    #region SKILL
     public void OnSwapClicked()
     {
         skillManager.SwapSkill();
@@ -412,4 +360,59 @@ public class UIManager : MonoBehaviour
         Tween.Custom(text.color, Color.black, duration: 0.5f, cycles: 2, cycleMode: CycleMode.Yoyo, onValueChange: newVal => text.color = newVal)
             .SetCycles(false);
     }
+    #endregion
+
+    #region ADVERTISEMENT
+    private void PlayAdForGem()
+    {
+        if (dataManager.IsAdRemoved)
+        {
+            GiveAdGemReward();
+            watchAdForGemButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            adManager.ShowRewardedAd(onRewardedAdCompleted: OnPlayAdForGemCompleted);
+        }
+    }
+
+    private void OnPlayAdForGemCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    {
+        GiveAdGemReward();
+    }
+
+    private void GiveAdGemReward()
+    {
+        dataManager.NumGem += 200;
+        SetGemText(dataManager.NumGem);
+
+        rewardClaimPopup.ShowPopup(200);
+
+        dataManager.SaveIAPData();
+    }
+    #endregion
+
+    #region IAP
+    private void HandlePurchaseIAPCompleted(string productId)
+    {
+        if (productId.Contains("gem"))
+        {
+            int numGemPurchased = int.Parse(productId.Substring(3));
+
+            rewardClaimPopup.ShowPopup(numGemPurchased);
+
+            dataManager.NumGem += numGemPurchased;
+
+            SetGemText();
+        }
+        else if (productId == "remove_ad")
+        {
+            dataManager.IsAdRemoved = true;
+
+            adManager.DestroyBannerAd();
+        }
+
+        dataManager.SaveIAPData();
+    }
+    #endregion
 }

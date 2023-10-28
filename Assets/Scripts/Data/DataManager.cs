@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using PrimeTween;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class DataManager : MonoBehaviour
 {
@@ -171,6 +173,7 @@ public class DataManager : MonoBehaviour
     //     bestScoreLetter = bestScoreLetterInString == "" ? null : bestScoreLetterInString[0];
     // }
 
+    #region SAVE/LOAD
     public void SaveGeneralData(float scoreNumber, char? scoreLetter)
     {
         GeneralData generalData = new GeneralData(scoreNumber, scoreLetter, _bestScoreNumber, _bestScoreLetter,
@@ -195,7 +198,7 @@ public class DataManager : MonoBehaviour
     public void SaveIAPData()
     {
         IAPData iapData = new IAPData(_numGem, _isAdRemoved);
-
+      
         File.WriteAllText(_iapDataPath, JsonConvert.SerializeObject(iapData));
     }
 
@@ -210,8 +213,7 @@ public class DataManager : MonoBehaviour
     {
         if (File.Exists(_iapDataPath))
         {
-            return JsonConvert.DeserializeObject<IAPData>(
-                File.ReadAllText(_iapDataPath));
+            return JsonConvert.DeserializeObject<IAPData>(File.ReadAllText(_iapDataPath));
         }
         else
         {
@@ -281,16 +283,20 @@ public class DataManager : MonoBehaviour
             return new GameplayData();
         }
     }
+    #endregion
 
+    #region UTIL
     public void ResetGameplayData()
     {
         GameplayData data = new GameplayData();
 
-        using (StreamWriter file = File.CreateText(_gameplayDataPath))
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Serialize(file, data);
-        }
+        File.WriteAllText(_gameplayDataPath, JsonConvert.SerializeObject(data));
+
+        // using (StreamWriter file = File.CreateText(_gameplayDataPath))
+        // {
+        //     JsonSerializer serializer = new JsonSerializer();
+        //     serializer.Serialize(file, data);
+        // }
     }
 
     public bool IsEnoughGem(SkillType skillType)
@@ -299,7 +305,8 @@ public class DataManager : MonoBehaviour
         else return false;
     }
 
-    public void SpendGem(int numGem) {
+    public void SpendGem(int numGem)
+    {
         _numGem -= numGem;
         onGemUpdatedEvent.Raise();
 
@@ -379,8 +386,10 @@ public class DataManager : MonoBehaviour
 
         return false;
     }
+    #endregion
 }
 
+#region DATA CLASS
 public class GameplayData
 {
     private bool _isSaved;
@@ -429,6 +438,7 @@ public class GameplayData
 
     public GameplayData()
     {
+        _isSaved = false;
     }
 
     public GameplayData(int turn, int[,] columnBlockIndexes, float scoreNumber,
@@ -606,3 +616,4 @@ public class DailyRewardData
         _lastTimestamp = newTimestamp;
     }
 }
+#endregion

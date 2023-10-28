@@ -128,7 +128,6 @@ public class MenuScreen : MonoBehaviour
         SetSizeEqual(bestBlockImage.rectTransform, 0.25f * _screenSize.x);
         SetSizeKeepRatioY(bestBlockCrownImage, 0.3f * bestBlockImage.rectTransform.sizeDelta.x);
         SetLocalPositionY(bestBlockCrownImage.rectTransform, 0.5f * (bestBlockImage.rectTransform.sizeDelta.y + bestBlockCrownImage.rectTransform.sizeDelta.y));
-        // SetSize(bestBlockCrownImage.rectTransform, 0.4f * bestBlockImage.rectTransform.sizeDelta.x, (0.4f / 1.15f) * bestBlockImage.rectTransform.sizeDelta.x);
 
         SetTextFontSize(bestBlockNumberText, 0.06f);
 
@@ -150,6 +149,7 @@ public class MenuScreen : MonoBehaviour
         AnimatePlayButton();
     }
 
+    #region UTIL
     private Vector2 GetSizeByScale(RectTransform target)
     {
         return new Vector2(target.sizeDelta.x * target.localScale.x, target.sizeDelta.y * target.localScale.y);
@@ -211,6 +211,7 @@ public class MenuScreen : MonoBehaviour
     {
         SetLocalPosition(target, 0, y);
     }
+    #endregion
 
     private void LoadData()
     {

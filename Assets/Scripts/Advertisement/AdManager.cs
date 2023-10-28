@@ -18,10 +18,10 @@ public class AdManager : MonoBehaviour
 
     void Start()
     {
+        SetAdUnitIds();
+
         if (!MaxSdk.IsInitialized() && !dataManager.IsAdRemoved)
         {
-            SetAdUnitIds();
-
 #if UNITY_EDITOR
 
 #elif UNITY_ANDROID
@@ -41,14 +41,14 @@ string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from yo
 #else // UNITY_ANDROID
     string _bannerAdUnitId = "51a60ebef89540e0"; // Retrieve the ID from your account
     private string _interstitialAdUnitId = "1590d1c6dba78b2e";
-    private string rewardedAdUnitId = "05cdd2745d999c36";
+    private string _rewardedAdUnitId = "05cdd2745d999c36";
 #endif
 
     private void SetAdUnitIds()
     {
         bannerAdUnit.AdUnitId = _bannerAdUnitId;
         interstitialAdUnit.AdUnitId = _interstitialAdUnitId;
-        rewardedAdUnit.AdUnitId = rewardedAdUnitId;
+        rewardedAdUnit.AdUnitId = _rewardedAdUnitId;
     }
 
     private void InitAppLovin()
@@ -70,11 +70,13 @@ string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from yo
         bannerAdUnit.Show();
     }
 
-    public void HideBannerAd() {
+    public void HideBannerAd()
+    {
         bannerAdUnit.Hide();
     }
 
-    public void DestroyBannerAd() {
+    public void DestroyBannerAd()
+    {
         bannerAdUnit.Destroy();
     }
 

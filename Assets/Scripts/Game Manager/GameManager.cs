@@ -24,7 +24,6 @@ public enum InteractMode
 public class GameManager : MonoBehaviour
 {
     [Header("OBJECTS")][SerializeField] private GameObject blockCollection;
-
     [SerializeField] private GameObject blockPrefab;
     [SerializeField] private GameObject[] blocks;
     [SerializeField] private TrailRenderer[] trails;
@@ -32,7 +31,6 @@ public class GameManager : MonoBehaviour
     private Rigidbody[] _blockRigidBodies;
     private Camera _mainCamera;
 
-    [Space]
     [Header("UI")]
     [SerializeField]
     private TMP_Text blockNumberTextPrefab;
@@ -40,7 +38,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private RectTransform blockNumberTextCollection;
     private TMP_Text[] _blockNumberTexts;
 
-    [Space]
+
     [Header("MANAGEMENT")]
     [SerializeField]
     private int turn;
@@ -155,6 +153,7 @@ public class GameManager : MonoBehaviour
         AudioManager.Instance.PlayBackgroundSound();
     }
 
+    #region SAVE/LOAD
     private void LoadData()
     {
         LoadGeneralData();
@@ -208,7 +207,9 @@ public class GameManager : MonoBehaviour
     {
         uiManager.SetBestScore(dataManager.BestScoreNumber, dataManager.BestScoreLetter);
     }
+    #endregion
 
+    #region SHOOT BLOCK
     public void OnSwipe()
     {
         if (_isPaused) return;
@@ -276,7 +277,9 @@ public class GameManager : MonoBehaviour
             Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 1);
         trails[_currentPoolBlockIndex].gameObject.SetActive(true);
     }
+    #endregion
 
+    #region MOVE BLOCK
     private void MoveBlock(int blockIndex, int rowIndex, int columnIndex, Vector3 end, bool isCheckMergeSingle = true,
         bool isLast = false, bool isFirstTime = false)
     {
@@ -381,7 +384,9 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region MERGE
     private void CheckMerge(int blockIndex, int rowIndex, int columnIndex, bool isFirstTime = false)
     {
         if (isDebug)
@@ -650,6 +655,11 @@ public class GameManager : MonoBehaviour
         int newColorIndex = remainingColorIndexes[Random.Range(0, remainingColorIndexes.Count)];
         Color newColor = Constants.AllBlockColors[newColorIndex];
 
+        if (newBestBlockIndex == blockIndex)
+        {
+            dataManager.BestBlockColorIndex = newColorIndex;
+        }
+
         _blockControllers[blockIndex].TweenColor(
            newColor, 0.9f * mergeDuration, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
         );
@@ -731,7 +741,9 @@ public class GameManager : MonoBehaviour
 
         EndTurn();
     }
+    #endregion
 
+    #region END TURN
     private void EarnScore(float newScoreNumber, char? newScoreLetter)
     {
         if (newScoreLetter == null)
@@ -837,13 +849,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (turn % 15 == 0 && !dataManager.IsAdRemoved)
+            if (turn % 25 == 0 && !dataManager.IsAdRemoved)
             {
                 adManager.ShowInterstitialAd();
             }
         }
     }
+    #endregion
 
+    #region SKILL
     public void X2BlockValue()
     {
         _blockControllers[newBestBlockIndex].Number *= 2;
@@ -898,7 +912,9 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region UTIL
     private int FindAvailableBlockIndex()
     {
         int index = -1;
@@ -941,8 +957,9 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
-    #region SwapMode
+    #region SWAP MODE
 
     public void EnterSwapMode()
     {
@@ -1044,6 +1061,7 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region PAUSE
     public void Pause()
     {
         _isPaused = true;
@@ -1053,4 +1071,5 @@ public class GameManager : MonoBehaviour
     {
         _isPaused = false;
     }
+    #endregion
 }

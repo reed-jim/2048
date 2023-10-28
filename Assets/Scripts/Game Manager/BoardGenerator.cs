@@ -8,7 +8,9 @@ public class BoardGenerator : MonoBehaviour
 {
     [SerializeField] private GameObject lanePrefab;
 
-    [Space] [Header("CUSTOM")] [SerializeField]
+    [Space]
+    [Header("CUSTOM")]
+    [SerializeField]
     private int numLane;
 
     [SerializeField] private float laneWidth;

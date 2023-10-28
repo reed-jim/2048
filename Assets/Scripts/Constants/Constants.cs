@@ -36,7 +36,6 @@ public static class Constants
         FromRGBShift(102, 37, 73, false),
         FromRGBShift(69, 25, 82, false),
         FromRGBShift(0, 0, 0, false)
-
     };
 
     private static Color FromRGB(int r, int g, int b)
