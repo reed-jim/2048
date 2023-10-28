@@ -8,24 +8,28 @@ using UnityEngine.UI;
 public class LoadingPopup : Popup
 {
     [SerializeField] private TMP_Text description;
+    [SerializeField] private TMP_Text eventText;
     [SerializeField] private Slider loadingBar;
     private RectTransform _loadingBarRT;
 
     protected override void InitUI()
     {
         base.InitUI();
-        
+
         _loadingBarRT = loadingBar.GetComponent<RectTransform>();
 
+        SetTextFontSize(eventText, 0.065f);
         SetTextFontSize(description, 0.05f);
 
-        _loadingBarRT.sizeDelta = new Vector2(0.7f * container.sizeDelta.x, 0.02f * container.sizeDelta.y);
+        SetLocalPositionY(eventText.rectTransform, title.rectTransform.localPosition.y - 0.7f * (title.preferredHeight + eventText.preferredHeight));
+
+        _loadingBarRT.sizeDelta = new Vector2(0.7f * container.sizeDelta.x, 0.025f * container.sizeDelta.y);
         _loadingBarRT.localPosition = new Vector3(0, -0.4f * (container.sizeDelta.y - _loadingBarRT.sizeDelta.y), 0);
 
         description.rectTransform.sizeDelta = new Vector2(description.preferredWidth, description.preferredHeight);
         description.rectTransform.localPosition = new Vector3(0,
-            _loadingBarRT.localPosition.y + 0.7f * (_loadingBarRT.sizeDelta.y + description.preferredHeight), 0);
-        
+            _loadingBarRT.localPosition.y + 0.6f * (_loadingBarRT.sizeDelta.y + description.preferredHeight), 0);
+
         closeButton.gameObject.SetActive(false);
     }
 

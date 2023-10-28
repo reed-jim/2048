@@ -78,10 +78,15 @@ public class DataManager : MonoBehaviour
 
     public int[] skillCosts = { 125, 150, 75 };
 
-    private string[] productIds = { "remove_ad", "gem200", "gem1000" };
-    private string[] iapValues = { "Remove Ad", "200", "200", "1000", "5000", "20000", "50000", "100000" };
-    private string[] iapCosts = { "2.99", "Watch Ad", "0.99", "1.99", "3.99", "5.99", "11.99", "12.99" };
+    private string[] productIds = { "remove_ad", "gem200", "gem500", "gem1000", "gem5000", "gem20000", "gem50000", "gem100000" };
+    private string[] iapValues = { "Remove Ad", "200", "500", "1000", "5000", "20000", "50000", "100000" };
+    private string[] iapCosts = { "2.99", "Watch Ad", "0.99", "1.99", "3.99", "5.99", "9.99", "10.99" };
     private int[] dailyRewards = { 50, 110, 180, 260, 350, 450, 1999, };
+
+    public string[] ProductIds
+    {
+        get => productIds;
+    }
 
     public string[] IapValues
     {
@@ -121,6 +126,9 @@ public class DataManager : MonoBehaviour
     private string _iapDataPath = Path.Combine(Application.persistentDataPath,"iap_data.json");
     private string _dailyRewardDataPath = Path.Combine(Application.persistentDataPath,"daily_reward_data.json");
 #endif
+
+    [Header("EVENT")]
+    [SerializeField] private ScriptableEventNoParam onGemUpdatedEvent;
 
     private void Awake()
     {
@@ -289,6 +297,13 @@ public class DataManager : MonoBehaviour
     {
         if (_numGem >= skillCosts[(int)skillType]) return true;
         else return false;
+    }
+
+    public void SpendGem(int numGem) {
+        _numGem -= numGem;
+        onGemUpdatedEvent.Raise();
+
+        SaveIAPData();
     }
 
     public bool IsNewBestScore(float scoreNumber, char? scoreLetter)

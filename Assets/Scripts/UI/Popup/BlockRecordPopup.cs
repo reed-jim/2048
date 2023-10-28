@@ -20,6 +20,7 @@ public class BlockRecordPopup : Popup
 
     [Header("REFERENCE")]
     [SerializeField] private AdManager adManager;
+    [SerializeField] private DataManager dataManager;
 
     public delegate void OnX2RewardedAdCompleted();
 
@@ -46,7 +47,7 @@ public class BlockRecordPopup : Popup
         SetLocalPositionY(crownImage.rectTransform,
             0.5f * (blockImage.rectTransform.sizeDelta.y + crownImage.rectTransform.sizeDelta.y));
 
-        SetUIElementSizeToParent(_x4ButtonRT, innerContainer, new Vector2(0.5f, 0.1f));
+        SetUIElementSizeToParent(_x4ButtonRT, innerContainer, new Vector2(0.5f, 0.13f));
         SetLocalPositionY(_x4ButtonRT, -0.4f * (innerContainer.sizeDelta.y - _x4ButtonRT.sizeDelta.y));
     }
 
@@ -64,7 +65,14 @@ public class BlockRecordPopup : Popup
 
     private void ShowAdForMultiplyBlockValue()
     {
-        adManager.ShowRewardedAd(onRewardedAdCompleted: gameManager.X2BlockValue);
+        if (dataManager.IsAdRemoved)
+        {
+            gameManager.X2BlockValue();
+        }
+        else
+        {
+            adManager.ShowRewardedAd(onRewardedAdCompleted: gameManager.X2BlockValue);
+        }
     }
 
     public void UpdateBestBlock(float blockNumber, char? blockLetter)

@@ -16,7 +16,7 @@ public class Popup : MonoBehaviour
 
     protected Vector2 screenSize;
 
-    [Header("REFERENCE")] [SerializeField] protected GameManager gameManager;
+    [Header("REFERENCE")][SerializeField] protected GameManager gameManager;
 
     private void Awake()
     {
@@ -47,6 +47,8 @@ public class Popup : MonoBehaviour
 
     public virtual void ShowPopup()
     {
+        AudioManager.Instance.PlayPopupSound();
+
         if (gameManager != null) gameManager.Pause();
 
         container.anchoredPosition = new Vector2(0, screenSize.y);
@@ -54,11 +56,12 @@ public class Popup : MonoBehaviour
         container.gameObject.SetActive(true);
 
         Tween.UIAnchoredPosition(container, Vector2.zero, duration: 0.4f);
-        // Tween.UIAnchoredPosition(container, new Vector2(0, (Screen.safeArea.height - Screen.currentResolution.height) / 2), duration: 0.4f);
     }
 
     public virtual void ClosePopup()
     {
+        AudioManager.Instance.PlayPopupSound();
+
         if (gameManager != null) gameManager.UnPause();
 
         Tween.UIAnchoredPosition(container, new Vector2(0, screenSize.y), duration: 0.4f)
@@ -75,6 +78,11 @@ public class Popup : MonoBehaviour
         text.fontSize = proportion * screenSize.x;
     }
 
+    protected void SetTextFontSizeDirectly(TMP_Text text, float fontSize)
+    {
+        text.fontSize = fontSize;
+    }
+
     protected void SetTextPreferredSize(TMP_Text text)
     {
         text.rectTransform.sizeDelta = new Vector2(text.preferredWidth, text.preferredHeight);
@@ -84,10 +92,22 @@ public class Popup : MonoBehaviour
     {
         target.sizeDelta = new Vector2(width, height);
     }
-    
+
     protected void SetSquareSize(RectTransform target, float width)
     {
         SetSize(target, width, width);
+    }
+
+    protected void SetSizeKeepRatioX(Image target, float height)
+    {
+        float ratio = target.sprite.rect.size.x / target.sprite.rect.size.y;
+        target.rectTransform.sizeDelta = new Vector2(height * ratio, height);
+    }
+
+    protected void SetSizeKeepRatioY(Image target, float width)
+    {
+        float ratio = target.sprite.rect.size.y / target.sprite.rect.size.x;
+        target.rectTransform.sizeDelta = new Vector2(width, width * ratio);
     }
 
     protected void SetLocalPosition(RectTransform target, float x, float y)

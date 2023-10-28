@@ -69,10 +69,19 @@ public class RewardClaimPopup : Popup
 
     private void OnX2ButtonPressed()
     {
-        adManager.ShowRewardedAd(onRewardedAdCompleted: HandleOnRewardedAdCompleted);
+        if (dataManager.IsAdRemoved)
+        {
+            HandleOnRewardedAdCompleted();
+            
+            x2Button.gameObject.SetActive(false);
+        }
+        else
+        {
+            adManager.ShowRewardedAd(onRewardedAdCompleted: HandleOnRewardedAdCompleted);
+        }
     }
 
-    private void HandleOnRewardedAdCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    private void HandleOnRewardedAdCompleted()
     {
         dataManager.NumGem += _numGemClaim;
         dataManager.SaveIAPData();
@@ -80,5 +89,10 @@ public class RewardClaimPopup : Popup
         SetNumGemClaimText(2 * _numGemClaim);
 
         onNumGemUpdatedEvent.Raise();
+    }
+
+    private void HandleOnRewardedAdCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    {
+        HandleOnRewardedAdCompleted();
     }
 }

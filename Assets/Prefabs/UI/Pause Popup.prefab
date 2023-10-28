@@ -308,8 +308,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PAUSED
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0e9f019dc71efda4d81583da4e9caae4, type: 2}
-  m_sharedMaterial: {fileID: -7872693700487893175, guid: 0e9f019dc71efda4d81583da4e9caae4,
+  m_fontAsset: {fileID: 11400000, guid: fd5ad862143900646bab21c6edae198d, type: 2}
+  m_sharedMaterial: {fileID: -8384752909840678906, guid: fd5ad862143900646bab21c6edae198d,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -485,9 +485,13 @@ MonoBehaviour:
   muteButton: {fileID: 1809791481241709344}
   themeButton: {fileID: 0}
   removeAdButton: {fileID: 3786055781864062867}
+  muteSprite: {fileID: 21300000, guid: 62a9020f0eb4ef34d827a5cc7793def1, type: 3}
+  unmuteSprite: {fileID: 21300000, guid: cc865917de1818941b3f95fb9da964e9, type: 3}
   quitText: {fileID: 1529336889661548465}
   replayText: {fileID: 569486966375500372}
   continueText: {fileID: 4606111957809159664}
+  dataManager: {fileID: 0}
+  iapManager: {fileID: 0}
 --- !u!1 &2783788013939842935
 GameObject:
   m_ObjectHideFlags: 0

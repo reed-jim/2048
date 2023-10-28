@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PrimeTween;
 using TMPro;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class NextBlockGenerator : MonoBehaviour
     [SerializeField] private int nextColorIndex;
     [SerializeField] private string nextBlockValue;
 
-    [Header("REFERENCE")] [SerializeField] private GameManager gameManager;
+    [Header("REFERENCE")][SerializeField] private GameManager gameManager;
 
     public int NextColorIndex
     {
@@ -27,41 +28,51 @@ public class NextBlockGenerator : MonoBehaviour
 
     public void GenerateNewBlock(int exceptColorIndex = -1)
     {
+        RandomNextBlock(exceptColorIndex);
+
+        blockNumberText.text = NextBlockValue;
+
+        PlayEffect(Constants.AllBlockColors[NextColorIndex], Constants.AllBlockTextColors[NextColorIndex]);
+    }
+
+    private void RandomNextBlockColorIndex(int exceptColorIndex = -1)
+    {
         if (exceptColorIndex != -1)
         {
-            NextColorIndex = exceptColorIndex;
-            NextBlockValue = "2";
+            List<int> remainingColorIndexes = new List<int>();
 
-            while (NextColorIndex == exceptColorIndex)
+            for (int i = 0; i < 5; i++)
             {
-                NextColorIndex = Random.Range(0, 5);
+                if (i != exceptColorIndex) remainingColorIndexes.Add(i);
+            }
+
+            NextColorIndex = remainingColorIndexes[Random.Range(0, 4)];
+        }
+        else
+        {
+            NextColorIndex = Random.Range(0, 5);
+        }
+    }
+
+    private void RandomNextBlock(int exceptColorIndex = -1)
+    {
+        bool isBonusPick = Random.Range(0, 3) == 0;
+
+        if (isBonusPick)
+        {
+            gameManager.GetRandomAvailableBlockData(out nextBlockValue, out nextColorIndex);
+
+            if (nextColorIndex == -1)
+            {
+                RandomNextBlockColorIndex(exceptColorIndex);
+                NextBlockValue = "2";
             }
         }
         else
         {
-            bool isBonusPick = Random.Range(0, 0) == 0;
-
-            if (isBonusPick)
-            {
-                gameManager.GetRandomAvailableBlockData(out nextBlockValue, out nextColorIndex);
-
-                if (nextColorIndex == -1)
-                {
-                    NextColorIndex = Random.Range(0, 5);
-                    NextBlockValue = "2a";
-                }
-            }
-            else
-            {
-                NextColorIndex = Random.Range(0, 5);
-                NextBlockValue = "2";
-            }
+            RandomNextBlockColorIndex(exceptColorIndex);
+            NextBlockValue = "2";
         }
-
-        // blockImage.color = Constants.AllBlockColors[NextColorIndex];
-        blockNumberText.text = NextBlockValue;
-
-        PlayEffect(Constants.AllBlockColors[NextColorIndex], Constants.AllBlockTextColors[NextColorIndex]);
     }
 
     private void PlayEffect(Color newColor, Color newTextColor)

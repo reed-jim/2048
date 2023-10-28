@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-[CreateAssetMenu(fileName = "rewarded_ad_unit", menuName = "ScriptableObjects/RewaredAdUnit")]
+[CreateAssetMenu(fileName = "rewarded_ad_unit", menuName = "ScriptableObjects/RewardedAdUnit")]
 public class RewardedAdUnit : ScriptableObject
 {
     private int _retryAttempt;
@@ -17,8 +17,6 @@ public class RewardedAdUnit : ScriptableObject
     public string AdUnitId { set => _adUnitId = value; }
 
     public delegate void OnRewardedAdCompleted();
-
-    // private OnRewardedAdCompleted _onRewardedAdCompleted;
 
     private Action<string, MaxSdk.Reward, MaxSdkBase.AdInfo> _cachedOnRewardedAdCompleted;
 
@@ -45,7 +43,6 @@ public class RewardedAdUnit : ScriptableObject
 
     public void Show(Action<string, MaxSdk.Reward, MaxSdkBase.AdInfo> onRewardedAdCompleted)
     {
-        Debug.Log("test50: " + (_cachedOnRewardedAdCompleted == null));
         if (_cachedOnRewardedAdCompleted == null)
         {
             MaxSdkCallbacks.Rewarded.OnAdReceivedRewardEvent += onRewardedAdCompleted;
@@ -57,7 +54,6 @@ public class RewardedAdUnit : ScriptableObject
         }
 
         _cachedOnRewardedAdCompleted = onRewardedAdCompleted;
-        Debug.Log("test51: " + _cachedOnRewardedAdCompleted.Method.Name);
 
         if (MaxSdk.IsRewardedAdReady(_adUnitId))
         {
@@ -67,7 +63,6 @@ public class RewardedAdUnit : ScriptableObject
 
     public void UnregisterEvent()
     {
-        Debug.Log("test14");
         if (_cachedOnRewardedAdCompleted != null)
         {
             MaxSdkCallbacks.Rewarded.OnAdReceivedRewardEvent -= _cachedOnRewardedAdCompleted;

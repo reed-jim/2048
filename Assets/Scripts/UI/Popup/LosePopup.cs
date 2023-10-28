@@ -57,6 +57,9 @@ public class LosePopup : Popup
         }
 
         SetGemText(numGem);
+
+        dataManager.NumGem += numGem;
+        dataManager.SaveIAPData();
     }
 
     private void SetGemText(int numGemReward)

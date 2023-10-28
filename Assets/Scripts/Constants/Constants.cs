@@ -16,7 +16,7 @@ public static class Constants
         FromRGB(174, 68, 90),
         FromRGB(102, 37, 73),
         FromRGB(69, 25, 82),
-        FromRGB(0, 0, 0)
+        FromRGB(35, 35, 35)
     };
 
     public static Color[] AllBlockTextColors =

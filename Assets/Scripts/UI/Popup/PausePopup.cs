@@ -22,11 +22,20 @@ public class PausePopup : Popup
     private RectTransform _muteButtonRT;
     private RectTransform _removeAdButtonRT;
 
-    [Space] [Header("TEXT")] [SerializeField]
+    [Header("SPRITE")]
+    [SerializeField] private Sprite muteSprite;
+    [SerializeField] private Sprite unmuteSprite;
+
+    [Header("TEXT")]
+    [SerializeField]
     private TMP_Text quitText;
 
     [SerializeField] private TMP_Text replayText;
     [SerializeField] private TMP_Text continueText;
+
+    [Header("REFERENCE")]
+    [SerializeField] private DataManager dataManager;
+    [SerializeField] private IAPManager iapManager;
 
     private void Start()
     {
@@ -38,6 +47,7 @@ public class PausePopup : Popup
         replayButton.onClick.AddListener(Replay);
         continueButton.onClick.AddListener(ClosePopup);
         muteButton.onClick.AddListener(Mute);
+        removeAdButton.onClick.AddListener(OnRemoveAdButtonPressed);
 
         InitUI();
     }
@@ -61,7 +71,7 @@ public class PausePopup : Popup
             -0.3f * (container.sizeDelta.y - _muteButtonRT.sizeDelta.y), 0);
         _removeAdButtonRT.localPosition = new Vector3(0.6f * _removeAdButtonRT.sizeDelta.x,
             -0.3f * (container.sizeDelta.y - _muteButtonRT.sizeDelta.y), 0);
-        
+
         SetTextSize(quitText, 0.07f);
         SetTextSize(replayText, 0.07f);
         SetTextSize(continueText, 0.07f);
@@ -79,16 +89,33 @@ public class PausePopup : Popup
 
     private void Replay()
     {
-        Addressables.LoadSceneAsync("Gameplay");
-    }
+        dataManager.ResetGameplayData();
 
-    private void Continue()
-    {
-        gameObject.SetActive(false);
+        Addressables.LoadSceneAsync("Gameplay");
     }
 
     private void Mute()
     {
+        muteButton.GetComponent<Image>().sprite = muteSprite;
         AudioListener.pause = true;
+
+        muteButton.onClick.RemoveAllListeners();
+        muteButton.onClick.AddListener(Unmute);
+    }
+
+    private void Unmute()
+    {
+        muteButton.GetComponent<Image>().sprite = unmuteSprite;
+        AudioListener.pause = false;
+
+        muteButton.onClick.RemoveAllListeners();
+        muteButton.onClick.AddListener(Mute);
+    }
+
+    private void OnRemoveAdButtonPressed()
+    {
+        AudioManager.Instance.PlayPopupSound();
+
+        iapManager.BuyProducts(dataManager.ProductIds[0]);
     }
 }

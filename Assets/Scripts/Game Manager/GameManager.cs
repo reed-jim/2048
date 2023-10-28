@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
     private int turn;
 
     private bool _isPaused;
-    private int newBestBlockIndex;
+    private int newBestBlockIndex = -1;
 
     private InteractMode _interactMode = InteractMode.Normal;
 
@@ -96,6 +96,11 @@ public class GameManager : MonoBehaviour
 
     private bool _isAnotherBlockMoving;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+    }
+
     private void Start()
     {
         Application.targetFrameRate = 60;
@@ -134,7 +139,7 @@ public class GameManager : MonoBehaviour
             blocks[i].SetActive(false);
 
             _blockNumberTexts[i] = Instantiate(blockNumberTextPrefab, blockNumberTextCollection);
-            _blockNumberTexts[i].fontSize = 0.05f * Screen.currentResolution.width;
+            _blockNumberTexts[i].fontSize = 0.04f * Screen.currentResolution.width;
             _blockNumberTexts[i].gameObject.SetActive(false);
         }
 
@@ -146,6 +151,8 @@ public class GameManager : MonoBehaviour
         nextBlockGenerator.GenerateNewBlock();
 
         LoadData();
+
+        AudioManager.Instance.PlayBackgroundSound();
     }
 
     private void LoadData()
@@ -186,7 +193,8 @@ public class GameManager : MonoBehaviour
 
                         Vector3 blockPosition = _mainCamera.WorldToScreenPoint(blocks[blockIndex].transform.position);
                         _blockNumberTexts[blockIndex].transform.position = blockPosition;
-                        _blockNumberTexts[blockIndex].text = _blockControllers[blockIndex].Value;
+                        _blockControllers[blockIndex].SetValue(_blockNumberTexts[blockIndex]);
+                        // _blockNumberTexts[blockIndex].text = _blockControllers[blockIndex].Value;
                         _blockNumberTexts[blockIndex].gameObject.SetActive(true);
                     }
                 }
@@ -198,8 +206,7 @@ public class GameManager : MonoBehaviour
 
     private void LoadGeneralData()
     {
-        _scoreNumber = dataManager.ScoreNumber;
-        _scoreLetter = dataManager.ScoreLetter;
+        uiManager.SetBestScore(dataManager.BestScoreNumber, dataManager.BestScoreLetter);
     }
 
     public void OnSwipe()
@@ -228,6 +235,8 @@ public class GameManager : MonoBehaviour
         SpawnThenMoveBlock(rowIndex, columnIndex);
 
         _isAnotherBlockMoving = true;
+
+        AudioManager.Instance.PlayShootBlockSound();
     }
 
     private void SpawnThenMoveBlock(int rowIndex, int columnIndex)
@@ -262,7 +271,7 @@ public class GameManager : MonoBehaviour
     private void SetTrail()
     {
         trails[_currentPoolBlockIndex].startColor =
-            Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 0.3f);
+            Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 0.1f);
         trails[_currentPoolBlockIndex].endColor =
             Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 1);
         trails[_currentPoolBlockIndex].gameObject.SetActive(true);
@@ -277,7 +286,7 @@ public class GameManager : MonoBehaviour
 
         Tween.Position(blocks[blockIndex].transform, end,
                 duration: isFirstTime ? moveDuration : moveDuration / 2f, ease: moveEasing)
-            .OnComplete(() => OnBlockMoved(blockIndex, rowIndex, columnIndex, isCheckMergeSingle, isLast));
+            .OnComplete(() => OnBlockMoved(blockIndex, rowIndex, columnIndex, isCheckMergeSingle, isLast, isFirstTime));
     }
 
     private void GetDestinationPositionIndex(out int rowIndex, out int columnIndex)
@@ -348,7 +357,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.002f);
         }
 
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForSeconds(0.005f);
 
         SetTextPosition();
     }
@@ -393,6 +402,8 @@ public class GameManager : MonoBehaviour
             MergeDirection mergeDirection, bool isLast = false)
         {
             Vector3 destination = blocks[blockIndex].transform.position;
+
+            trails[mergedBlockIndex].gameObject.SetActive(false);
 
             if (isLast)
             {
@@ -491,7 +502,7 @@ public class GameManager : MonoBehaviour
         {
             if (isFirstTime)
             {
-                EndTurn();
+                EndTurn(false);
             }
             else
             {
@@ -505,6 +516,11 @@ public class GameManager : MonoBehaviour
 
             Merge(mergeBlockIndexes[i], mergeBlockPositionIndexes[i].x, mergeBlockPositionIndexes[i].y,
                 mergeBlockDirections[i], isLast);
+
+            if (isLast)
+            {
+                AudioManager.Instance.PlayMergeBlockSound();
+            }
         }
 
         void FindAllMergeBlocks()
@@ -551,20 +567,91 @@ public class GameManager : MonoBehaviour
             if (i != _blockControllers[blockIndex].ColorIndex) remainingColorIndexes.Add(i);
         }
 
-        int newColorIndex = remainingColorIndexes[Random.Range(0, 4)];
-        Color newColor = Constants.AllBlockColors[newColorIndex];
+        // int newColorIndex = remainingColorIndexes[Random.Range(0, 4)];
+        // Color newColor = Constants.AllBlockColors[newColorIndex];
 
         _blockControllers[mergedBlockIndex].TweenColor(
-            Constants.AllBlockColors[_blockControllers[blockIndex].ColorIndex], 0.3f * mergeDuration, () =>
+            Constants.AllBlockColors[_blockControllers[blockIndex].ColorIndex], 0.9f * mergeDuration, () =>
             {
-                _blockControllers[mergedBlockIndex].TweenColor(
-                    newColor, 0.6f * mergeDuration, () => { }
-                );
+                // _blockControllers[mergedBlockIndex].TweenColor(
+                //     newColor, 0.6f * mergeDuration, () => { }
+                // );
             }
         );
+    }
+
+    private void ChangeShotBlockColor()
+    {
+        int blockIndex = _currentPoolBlockIndex;
+        Vector2Int positionIndex = new Vector2Int(-1, -1);
+
+        for (int i = 0; i < boardGenerator.NumLane; i++)
+        {
+            if (positionIndex.x != -1) break;
+
+            for (int j = 0; j < _numBlockPerColumn; j++)
+            {
+                if (_columnBlockIndexes[i, j] == blockIndex)
+                {
+                    positionIndex = new Vector2Int(i, j);
+                    break;
+                }
+            }
+        }
+
+        if (positionIndex.x == -1) return;
+
+        List<int> remainingColorIndexes = new List<int>();
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (i != _blockControllers[blockIndex].ColorIndex) remainingColorIndexes.Add(i);
+        }
+
+        if (positionIndex.y + 1 < _numBlockPerColumn)
+        {
+            int upBlockIndex = _columnBlockIndexes[positionIndex.x, positionIndex.y + 1];
+
+            if (upBlockIndex != -1)
+            {
+                if (_blockControllers[upBlockIndex].Value == _blockControllers[blockIndex].Value)
+                {
+                    remainingColorIndexes.Remove(_blockControllers[upBlockIndex].ColorIndex);
+                }
+            }
+        }
+
+        if (positionIndex.x + 1 < boardGenerator.NumLane)
+        {
+            int rightBlockIndex = _columnBlockIndexes[positionIndex.x + 1, positionIndex.y];
+
+            if (rightBlockIndex != -1)
+            {
+                if (_blockControllers[rightBlockIndex].Value == _blockControllers[blockIndex].Value)
+                {
+                    remainingColorIndexes.Remove(_blockControllers[rightBlockIndex].ColorIndex);
+                }
+            }
+        }
+
+        if (positionIndex.x - 1 >= 0)
+        {
+            int leftBlockIndex = _columnBlockIndexes[positionIndex.x - 1, positionIndex.y];
+
+            if (leftBlockIndex != -1)
+            {
+                if (_blockControllers[leftBlockIndex].Value == _blockControllers[blockIndex].Value)
+                {
+                    remainingColorIndexes.Remove(_blockControllers[leftBlockIndex].ColorIndex);
+                }
+            }
+        }
+
+        int newColorIndex = remainingColorIndexes[Random.Range(0, remainingColorIndexes.Count)];
+        Color newColor = Constants.AllBlockColors[newColorIndex];
 
         _blockControllers[blockIndex].TweenColor(
-            newColor, 0.9f * mergeDuration, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
+           newColor, 0.9f * mergeDuration, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
         );
 
         Tween.Custom(_blockNumberTexts[blockIndex].color, Constants.AllBlockTextColors[newColorIndex], duration: 0.9f * mergeDuration,
@@ -580,7 +667,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < boardGenerator.NumLane; i++)
         {
-            for (int j = 0; j < _numBlockPerColumn; j++)
+            for (int j = _numBlockPerColumn - 2; j >= 0; j--)
             {
                 if (_columnBlockIndexes[i, j] != -1)
                 {
@@ -703,7 +790,7 @@ public class GameManager : MonoBehaviour
         uiManager.SetScoreText(_scoreNumber, _scoreLetter);
     }
 
-    private void EndTurn()
+    private void EndTurn(bool isAnyMerge = true)
     {
         if (blocks[blocks.Length - 1].activeSelf)
         {
@@ -712,6 +799,20 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if (isAnyMerge)
+        {
+            ChangeShotBlockColor();
+
+            Tween.Delay(mergeDuration).OnComplete(() => DoEndTurn());
+        }
+        else
+        {
+            DoEndTurn();
+        }
+    }
+
+    private void DoEndTurn()
+    {
         _isAnotherBlockMoving = false;
         nextBlockGenerator.GenerateNewBlock();
 
@@ -723,6 +824,8 @@ public class GameManager : MonoBehaviour
         {
             dataManager.BestScoreNumber = _scoreNumber;
             dataManager.BestScoreLetter = _scoreLetter;
+
+            uiManager.SetBestScore(dataManager.BestScoreNumber, dataManager.BestScoreLetter);
         }
 
         dataManager.SaveGeneralData(_scoreNumber, _scoreLetter);
@@ -734,14 +837,14 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // if (turn % 10 == 0)
-            // {
-            //     adManager.ShowInterstitialAd();
-            // }
+            if (turn % 15 == 0 && !dataManager.IsAdRemoved)
+            {
+                adManager.ShowInterstitialAd();
+            }
         }
     }
 
-    public void X2BlockValue(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    public void X2BlockValue()
     {
         _blockControllers[newBestBlockIndex].Number *= 2;
         _blockControllers[newBestBlockIndex].SetValue(_blockNumberTexts[newBestBlockIndex]);
@@ -753,6 +856,11 @@ public class GameManager : MonoBehaviour
             _blockControllers[newBestBlockIndex].Letter);
     }
 
+    public void X2BlockValue(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
+    {
+        X2BlockValue();
+    }
+
     private void PushChange(int blockIndex, Vector2Int prevPositionIndex, Vector2Int curPositionIndex)
     {
         _changeStack.Push(new PositionChangeStackItem(turn, blockIndex, prevPositionIndex, curPositionIndex));
@@ -760,6 +868,8 @@ public class GameManager : MonoBehaviour
 
     public void RevertMove()
     {
+        if (_changeStack.Count == 0) return;
+
         ChangeStackItem change = _changeStack.Peek();
 
         if (change.Turn == turn - 1)
@@ -781,6 +891,8 @@ public class GameManager : MonoBehaviour
                             blocks[positionChange.BlockIndex].SetActive(false);
                             _columnBlockIndexes[positionChange.CurPositionIndex.x, positionChange.CurPositionIndex.y] =
                                 -1;
+
+                            dataManager.SpendGem(75);
                         });
                 }
             }
@@ -897,6 +1009,8 @@ public class GameManager : MonoBehaviour
 
     public void Swap()
     {
+        _isBlockChecks = new bool[boardGenerator.NumLane, _numBlockPerColumn];
+
         for (int i = 0; i < _selectedBlockIndexes.Count; i++)
         {
             bool isLast = i == 1;
@@ -905,6 +1019,8 @@ public class GameManager : MonoBehaviour
             int otherColumnIndex = _selectedBlockPositionIndexes[otherIndexInSwapList].y;
 
             Tween.Scale(blocks[_selectedBlockIndexes[i]].transform, blockWidth * Vector3.one, duration: 0.15f);
+
+            trails[_selectedBlockIndexes[i]].gameObject.SetActive(false);
 
             MoveBlock(
                 _selectedBlockIndexes[i],
@@ -922,6 +1038,8 @@ public class GameManager : MonoBehaviour
         _interactMode = InteractMode.Normal;
 
         uiManager.swapModePopup.ClosePopup();
+
+        dataManager.SpendGem(125);
     }
 
     #endregion

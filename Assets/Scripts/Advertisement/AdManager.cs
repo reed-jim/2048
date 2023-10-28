@@ -7,6 +7,7 @@ using UnityEngine;
 public class AdManager : MonoBehaviour
 {
     [Header("AD UNIT")]
+    [SerializeField] private BannerAdUnit bannerAdUnit;
     [SerializeField] private InterstitialAdUnit interstitialAdUnit;
     [SerializeField] private RewardedAdUnit rewardedAdUnit;
 
@@ -17,10 +18,10 @@ public class AdManager : MonoBehaviour
 
     void Start()
     {
-        SetAdUnitIds();
-
-        if (!MaxSdk.IsInitialized())
+        if (!MaxSdk.IsInitialized() && !dataManager.IsAdRemoved)
         {
+            SetAdUnitIds();
+
 #if UNITY_EDITOR
 
 #elif UNITY_ANDROID
@@ -31,6 +32,7 @@ public class AdManager : MonoBehaviour
 
     void OnDestroy()
     {
+        DestroyBannerAd();
         rewardedAdUnit.UnregisterEvent();
     }
 
@@ -44,6 +46,7 @@ string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from yo
 
     private void SetAdUnitIds()
     {
+        bannerAdUnit.AdUnitId = _bannerAdUnitId;
         interstitialAdUnit.AdUnitId = _interstitialAdUnitId;
         rewardedAdUnit.AdUnitId = rewardedAdUnitId;
     }
@@ -52,7 +55,7 @@ string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from yo
     {
         MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration sdkConfiguration) =>
         {
-            InitializeBannerAds();
+            bannerAdUnit.InitializeBannerAds();
             interstitialAdUnit.InitializeInterstitialAds();
             rewardedAdUnit.InitializeRewardedAds();
         };
@@ -62,21 +65,17 @@ string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from yo
         MaxSdk.InitializeSdk();
     }
 
-    public void InitializeBannerAds()
+    public void ShowBannerAd()
     {
-        // Banners are automatically sized to 320×50 on phones and 728×90 on tablets
-        // You may call the utility method MaxSdkUtils.isTablet() to help with view sizing adjustments
-        MaxSdk.CreateBanner(_bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
+        bannerAdUnit.Show();
+    }
 
-        // // Set background or background color for banners to be fully functional
-        // MaxSdk.SetBannerBackgroundColor(bannerAdUnitId,  < YOUR_BANNER_BACKGROUND_COLOR >);
+    public void HideBannerAd() {
+        bannerAdUnit.Hide();
+    }
 
-        MaxSdkCallbacks.Banner.OnAdLoadedEvent += OnBannerAdLoadedEvent;
-        MaxSdkCallbacks.Banner.OnAdLoadFailedEvent += OnBannerAdLoadFailedEvent;
-        MaxSdkCallbacks.Banner.OnAdClickedEvent += OnBannerAdClickedEvent;
-        MaxSdkCallbacks.Banner.OnAdRevenuePaidEvent += OnBannerAdRevenuePaidEvent;
-        MaxSdkCallbacks.Banner.OnAdExpandedEvent += OnBannerAdExpandedEvent;
-        MaxSdkCallbacks.Banner.OnAdCollapsedEvent += OnBannerAdCollapsedEvent;
+    public void DestroyBannerAd() {
+        bannerAdUnit.Destroy();
     }
 
     public void ShowInterstitialAd()
@@ -87,36 +86,6 @@ string bannerAdUnitId = "YOUR_IOS_BANNER_AD_UNIT_ID"; // Retrieve the ID from yo
     public void ShowRewardedAd(Action<string, MaxSdk.Reward, MaxSdkBase.AdInfo> onRewardedAdCompleted)
     {
         rewardedAdUnit.Show(onRewardedAdCompleted);
-    }
-
-    private void ShowBannerAd()
-    {
-        MaxSdk.ShowBanner(_bannerAdUnitId);
-    }
-
-    private void OnBannerAdLoadedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
-    {
-        ShowBannerAd();
-    }
-
-    private void OnBannerAdLoadFailedEvent(string adUnitId, MaxSdkBase.ErrorInfo errorInfo)
-    {
-    }
-
-    private void OnBannerAdClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
-    {
-    }
-
-    private void OnBannerAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
-    {
-    }
-
-    private void OnBannerAdExpandedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
-    {
-    }
-
-    private void OnBannerAdCollapsedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo)
-    {
     }
 
     //

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class DailyRewardPopup : Popup
 {
-    [Header("UI")] [SerializeField] private RectTransform innerContainer;
+    [Header("UI")][SerializeField] private RectTransform innerContainer;
     [SerializeField] private Button dailyRewardButtonPrefab;
     [SerializeField] private Button[] dailyRewardButtons;
     private RectTransform[] _dailyRewardButtonRTs;
@@ -19,7 +19,7 @@ public class DailyRewardPopup : Popup
     [SerializeField] private float blockGap;
     private float _blockDistance;
 
-    [Header("REFERENCE")] [SerializeField] private DataManager dataManager;
+    [Header("REFERENCE")][SerializeField] private DataManager dataManager;
     [SerializeField] private MenuScreen menuScreen;
     [SerializeField] private RewardClaimPopup rewardClaimPopup;
 
@@ -44,9 +44,9 @@ public class DailyRewardPopup : Popup
             checkMarkImages[i] = _dailyRewardButtonRTs[i].GetChild(3).GetComponent<Image>();
         }
 
-        blockGap = 0.005f * screenSize.x;
+        blockGap = 0.008f * screenSize.x;
 
-        innerContainer.sizeDelta = new Vector2(0.8f * container.sizeDelta.x, 0.35f * container.sizeDelta.y);
+        innerContainer.sizeDelta = new Vector2(0.9f * container.sizeDelta.x, 0.55f * container.sizeDelta.y);
 
         Vector3 position = Vector3.zero;
 
@@ -56,8 +56,7 @@ public class DailyRewardPopup : Popup
 
             if (i < 4)
             {
-                _dailyRewardButtonRTs[i].sizeDelta =
-                    new Vector2(innerContainer.sizeDelta.x / 4, innerContainer.sizeDelta.y / 3);
+                SetSize(_dailyRewardButtonRTs[i], innerContainer.sizeDelta.x / 4, innerContainer.sizeDelta.y / 3);
 
                 _blockDistance = _dailyRewardButtonRTs[i].sizeDelta.x + blockGap;
 
@@ -66,9 +65,7 @@ public class DailyRewardPopup : Popup
             }
             else if (i >= 4 && i < 6)
             {
-                _dailyRewardButtonRTs[i].sizeDelta =
-                    new Vector2(innerContainer.sizeDelta.x / 2 + blockGap,
-                        innerContainer.sizeDelta.y / 3);
+                SetSize(_dailyRewardButtonRTs[i], innerContainer.sizeDelta.x / 2 + blockGap, innerContainer.sizeDelta.y / 3);
 
                 _blockDistance = _dailyRewardButtonRTs[i].sizeDelta.x + blockGap;
 
@@ -78,9 +75,7 @@ public class DailyRewardPopup : Popup
             }
             else
             {
-                _dailyRewardButtonRTs[i].sizeDelta =
-                    new Vector2(innerContainer.sizeDelta.x / 1 + 3 * blockGap,
-                        innerContainer.sizeDelta.y / 3);
+                SetSize(_dailyRewardButtonRTs[i], innerContainer.sizeDelta.x / 1 + 3 * blockGap, innerContainer.sizeDelta.y / 3);
 
                 position.x = 0;
                 position.y = 0.5f * (innerContainer.sizeDelta.y - _dailyRewardButtonRTs[0].sizeDelta.y) -
@@ -92,7 +87,7 @@ public class DailyRewardPopup : Popup
             gemImages[i].rectTransform.sizeDelta = 0.4f * new Vector2(1.1f * _dailyRewardButtonRTs[0].sizeDelta.x,
                 _dailyRewardButtonRTs[0].sizeDelta.x);
 
-            SetTextFontSize(dayTexts[i], 0.03f);
+            SetTextFontSize(dayTexts[i], 0.04f);
             SetTextFontSize(valueTexts[i], 0.05f);
 
             dayTexts[i].text = "DAY " + (i + 1);
@@ -102,8 +97,8 @@ public class DailyRewardPopup : Popup
             valueTexts[i].rectTransform.localPosition = new Vector3(0,
                 -0.7f * (gemImages[i].rectTransform.sizeDelta.y + dayTexts[i].preferredHeight), 0);
 
-            checkMarkImages[i].rectTransform.sizeDelta = 0.7f * new Vector2(_dailyRewardButtonRTs[i].sizeDelta.x,
-                _dailyRewardButtonRTs[i].sizeDelta.x);
+            SetSquareSize(checkMarkImages[i].rectTransform, 0.7f * _dailyRewardButtonRTs[i].sizeDelta.x);
+            SetLocalPositionY(checkMarkImages[i].rectTransform, -0.1f * checkMarkImages[i].rectTransform.sizeDelta.y);
         }
     }
 

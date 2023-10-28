@@ -27,6 +27,9 @@ public class ShopPopup : Popup
     [SerializeField] private AdManager adManager;
     [SerializeField] private IAPManager iapManager;
 
+    [Header("POPUP")]
+    [SerializeField] private RewardClaimPopup rewardClaimPopup;
+
     [Header("CUSTOM")][SerializeField] private int numItem;
 
     [Header("EVENT")]
@@ -35,6 +38,14 @@ public class ShopPopup : Popup
     private void Start()
     {
         // Spawn();
+    }
+
+    private void OnDisable()
+    {
+        if (!dataManager.IsAdRemoved)
+        {
+            adManager.ShowBannerAd();
+        }
     }
 
     protected override void InitUI()
@@ -64,12 +75,12 @@ public class ShopPopup : Popup
 
         for (int i = 0; i < itemButtons.Length; i++)
         {
-            _itemButtonRTs[i].sizeDelta = new Vector2(0.9f * container.sizeDelta.x, 0.08f * container.sizeDelta.y);
+            _itemButtonRTs[i].sizeDelta = new Vector2(0.9f * container.sizeDelta.x, 0.085f * container.sizeDelta.y);
             _itemButtonRTs[i].localPosition =
                 new Vector3(0, 0.3f * container.sizeDelta.y - i * 1.15f * _itemButtonRTs[i].sizeDelta.y, 0);
 
-            SetTextFontSize(_itemCostText[i], 0.04f);
-            SetTextFontSize(_itemValueText[i], 0.06f);
+            SetTextFontSizeDirectly(_itemCostText[i], 0.2f * _itemButtonRTs[i].sizeDelta.y);
+            SetTextFontSizeDirectly(_itemValueText[i], 0.35f * _itemButtonRTs[i].sizeDelta.y);
 
             _itemCostText[i].text = i == 1 ? dataManager.IapCosts[i] : "$" + dataManager.IapCosts[i];
             _itemValueText[i].text = dataManager.IapValues[i];
@@ -79,18 +90,15 @@ public class ShopPopup : Popup
             if (i == 0)
             {
                 _gemImages[i].sprite = removeAdSprite;
-                _gemImages[i].rectTransform.sizeDelta *= 1.9f;
             }
 
-            SetUIElementSizeToParent(_gemImages[i].rectTransform, _itemButtonRTs[i], new Vector2(0.08f, 0.4f));
+            SetSizeKeepRatioX(_gemImages[i], 0.4f * _itemButtonRTs[i].sizeDelta.y);
             _gemImages[i].rectTransform.localPosition =
                 new Vector3(-0.45f * (_itemButtonRTs[i].sizeDelta.x - _gemImages[i].rectTransform.sizeDelta.x), 0, 0);
 
-            _itemValueText[i].rectTransform.localPosition = new Vector3(
+            SetLocalPositionX(_itemValueText[i].rectTransform,
                 _gemImages[i].rectTransform.localPosition.x +
-                0.5f * (2f * _gemImages[i].rectTransform.sizeDelta.x + _itemValueText[i].preferredWidth),
-                0,
-                0
+                    0.5f * (2f * _gemImages[i].rectTransform.sizeDelta.x + _itemValueText[i].preferredWidth)
             );
 
             _buyButtonRTs[i].sizeDelta =
@@ -105,24 +113,55 @@ public class ShopPopup : Popup
             }
             else
             {
-                _buyButtons[i].onClick.AddListener(() => OnBuyButtonPressed("gem200"));
+                string productId = dataManager.ProductIds[i];
+                _buyButtons[i].onClick.AddListener(() => OnBuyButtonPressed(productId));
             }
         }
     }
 
-    private void OnBuyButtonPressed(string productId)
+    public override void ShowPopup()
     {
+        base.ShowPopup();
+
+        if (dataManager.IsAdRemoved)
+        {
+            _buyButtons[0].interactable = false;
+            _itemCostText[0].text = "Owned";
+        }
+
+        adManager.HideBannerAd();
+    }
+
+    private void OnBuyButtonPressed(string productId)
+    {   
+        AudioManager.Instance.PlayPopupSound();
+
         iapManager.BuyProducts(productId);
     }
 
     private void OnWatchAdForGemButtonPressed()
-    {
-        adManager.ShowRewardedAd(onRewardedAdCompleted: HandleOnRewardedAdCompleted);
+    {   
+        AudioManager.Instance.PlayPopupSound();
+
+        if (dataManager.IsAdRemoved)
+        {
+            dataManager.NumGem += 200;
+            dataManager.SaveIAPData();
+            onNumGemUpdatedEvent.Raise();
+
+            _buyButtons[1].interactable = false;
+
+            rewardClaimPopup.ShowPopup(200);
+        }
+        else
+        {
+            adManager.ShowRewardedAd(onRewardedAdCompleted: HandleOnRewardedAdCompleted);
+        }
     }
 
     private void HandleOnRewardedAdCompleted(string adUnitId, MaxSdk.Reward reward, MaxSdkBase.AdInfo adInfo)
     {
-        dataManager.NumGem += 100;
+        dataManager.NumGem += 200;
         dataManager.SaveIAPData();
         onNumGemUpdatedEvent.Raise();
     }

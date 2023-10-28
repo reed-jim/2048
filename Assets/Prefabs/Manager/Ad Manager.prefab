@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcac122cd594ee042a4d0ff2229bdf36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bannerAdUnit: {fileID: 11400000, guid: 9982e76dc5e200d44b5e03d2dc3d4c18, type: 2}
   interstitialAdUnit: {fileID: 11400000, guid: daf02f7cbb699524db6ab8672977eba2, type: 2}
   rewardedAdUnit: {fileID: 11400000, guid: 45dd17e0cce46e7439c544076abd1aa1, type: 2}
   dataManager: {fileID: 0}

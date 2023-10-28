@@ -24,14 +24,20 @@ public class IAPManager : MonoBehaviour, IDetailedStoreListener
 
     public void InitializeIAP()
     {
+#if UNITY_EDITOR
         StandardPurchasingModule.Instance().useFakeStoreAlways = true;
         StandardPurchasingModule.Instance().useFakeStoreUIMode = FakeStoreUIMode.StandardUser;
+#endif
 
         var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
         builder.AddProduct("remove_ad", ProductType.NonConsumable);
-        builder.AddProduct("gem200", ProductType.Consumable);
+        builder.AddProduct("gem500", ProductType.Consumable);
         builder.AddProduct("gem1000", ProductType.Consumable);
+        builder.AddProduct("gem5000", ProductType.Consumable);
+        builder.AddProduct("gem20000", ProductType.Consumable);
+        builder.AddProduct("gem50000", ProductType.Consumable);
+        builder.AddProduct("gem100000", ProductType.Consumable);
 
         UnityPurchasing.Initialize(this, builder);
     }
@@ -63,13 +69,13 @@ public class IAPManager : MonoBehaviour, IDetailedStoreListener
 
     public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
     {
-        Debug.Log("purchased failed: " + failureDescription.message);
+
     }
 
     public void BuyProducts(string productId)
     {
         _currentProcessProductId = productId;
-        
+
         controller.InitiatePurchase(productId);
     }
 }

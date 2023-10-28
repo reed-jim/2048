@@ -121,7 +121,7 @@ public class Block : MonoBehaviour
             Value = Number.ToString() + _letter;
         }
 
-        valueText.text = Value;
+        valueText.text = Value.ToUpper();
     }
 
     public bool IsMatch(Block blockController)
