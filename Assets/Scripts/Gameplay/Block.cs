@@ -54,18 +54,21 @@ public class Block : MonoBehaviour
 
     public void SetColor(TMP_Text blockNumber)
     {
-        Color color = Constants.AllBlockColors[ColorIndex];
-
+        // Color color = Constants.AllBlockColors[ColorIndex];
+        Color color = Constants.GetColorInTheme(ThemePicker.value)[ColorIndex];
         _customMaterialProperty.ChangeColor(color);
-        blockNumber.color = Constants.AllBlockTextColors[ColorIndex];
+        // blockNumber.color = Constants.AllBlockTextColors[ColorIndex];
+        blockNumber.color = Constants.GetTextColorInTheme(ThemePicker.value)[ColorIndex];
     }
 
     public void SetColor(int colorIndex, TMP_Text blockNumber)
     {
-        Color color = Constants.AllBlockColors[colorIndex];
+        // Color color = Constants.AllBlockColors[colorIndex];
+        Color color = Constants.GetColorInTheme(ThemePicker.value)[ColorIndex];
 
         _customMaterialProperty.ChangeColor(color);
-        blockNumber.color = Constants.AllBlockTextColors[colorIndex];
+        // blockNumber.color = Constants.AllBlockTextColors[colorIndex];
+        blockNumber.color = Constants.GetTextColorInTheme(ThemePicker.value)[ColorIndex];
 
         ColorIndex = colorIndex;
     }

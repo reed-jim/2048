@@ -15,7 +15,11 @@ public class IAPManager : MonoBehaviour, IDetailedStoreListener
 
     private string _currentProcessProductId;
 
+    [Header("EVENT")]
     [SerializeField] private ScriptableStringEvent onProductPurchasedEvent;
+
+    [Header("REFERENCE")]
+    [SerializeField] private DataManager dataManager;
 
     private void Awake()
     {
@@ -46,6 +50,8 @@ public class IAPManager : MonoBehaviour, IDetailedStoreListener
     {
         this.controller = controller;
         this.extensions = extensions;
+
+        OnProductFetched(controller.products.all);
     }
 
     public void OnInitializeFailed(InitializationFailureReason error)
@@ -77,5 +83,28 @@ public class IAPManager : MonoBehaviour, IDetailedStoreListener
         _currentProcessProductId = productId;
 
         controller.InitiatePurchase(productId);
+    }
+
+    private void OnProductFetched(Product[] products)
+    {
+        Product removeAdProduct = products[0];
+
+        if (IsUserAlreadyHaveAdRemove(removeAdProduct))
+        {
+            dataManager.IsAdRemoved = true;
+            dataManager.SaveIAPData();
+        }
+    }
+
+    private bool IsUserAlreadyHaveAdRemove(Product product)
+    {
+        if (product.hasReceipt)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

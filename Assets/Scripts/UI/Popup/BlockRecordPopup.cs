@@ -59,6 +59,7 @@ public class BlockRecordPopup : Popup
 
         X4Button.onClick.RemoveAllListeners();
         X4Button.onClick.AddListener(() => ShowAdForMultiplyBlockValue());
+        X4Button.gameObject.SetActive(true);
 
         base.ShowPopup();
     }
@@ -68,6 +69,7 @@ public class BlockRecordPopup : Popup
         if (dataManager.IsAdRemoved)
         {
             gameManager.X2BlockValue();
+            X4Button.gameObject.SetActive(false);
         }
         else
         {

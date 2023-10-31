@@ -20,6 +20,7 @@ public class PausePopup : Popup
     [SerializeField] private Button removeAdButton;
 
     private RectTransform _muteButtonRT;
+    private RectTransform _themeButtonRT;
     private RectTransform _removeAdButtonRT;
 
     [Header("SPRITE")]
@@ -37,9 +38,13 @@ public class PausePopup : Popup
     [SerializeField] private DataManager dataManager;
     [SerializeField] private IAPManager iapManager;
 
+    [Header("POPUP")]
+    [SerializeField] private ThemePickerPopup themePickerPopup;
+
     private void Start()
     {
         _muteButtonRT = muteButton.GetComponent<RectTransform>();
+        _themeButtonRT = themeButton.GetComponent<RectTransform>();
         _removeAdButtonRT = removeAdButton.GetComponent<RectTransform>();
 
         closeButton.onClick.AddListener(ClosePopup);
@@ -47,6 +52,7 @@ public class PausePopup : Popup
         replayButton.onClick.AddListener(Replay);
         continueButton.onClick.AddListener(ClosePopup);
         muteButton.onClick.AddListener(Mute);
+        themeButton.onClick.AddListener(ShowThemePickerPopup);
         removeAdButton.onClick.AddListener(OnRemoveAdButtonPressed);
 
         InitUI();
@@ -65,12 +71,13 @@ public class PausePopup : Popup
             new Vector3(0, 0.1f * container.sizeDelta.y - 2 * 1.1f * quitButtonRT.sizeDelta.y, 0);
 
         _muteButtonRT.sizeDelta = 0.15f * new Vector2(container.sizeDelta.x, container.sizeDelta.x);
+        _themeButtonRT.sizeDelta = _muteButtonRT.sizeDelta;
         _removeAdButtonRT.sizeDelta = _muteButtonRT.sizeDelta;
 
-        _muteButtonRT.localPosition = new Vector3(-0.6f * _muteButtonRT.sizeDelta.x,
+        _muteButtonRT.localPosition = new Vector3(-1.1f * _muteButtonRT.sizeDelta.x,
             -0.3f * (container.sizeDelta.y - _muteButtonRT.sizeDelta.y), 0);
-        _removeAdButtonRT.localPosition = new Vector3(0.6f * _removeAdButtonRT.sizeDelta.x,
-            -0.3f * (container.sizeDelta.y - _muteButtonRT.sizeDelta.y), 0);
+        SetLocalPosition(_themeButtonRT, 0, _muteButtonRT.localPosition.y);
+        SetLocalPosition(_removeAdButtonRT, 1.1f * _removeAdButtonRT.sizeDelta.x, _muteButtonRT.localPosition.y);
 
         SetTextSize(quitText, 0.07f);
         SetTextSize(replayText, 0.07f);
@@ -110,6 +117,11 @@ public class PausePopup : Popup
 
         muteButton.onClick.RemoveAllListeners();
         muteButton.onClick.AddListener(Mute);
+    }
+
+    private void ShowThemePickerPopup()
+    {
+        themePickerPopup.ShowPopup();
     }
 
     private void OnRemoveAdButtonPressed()

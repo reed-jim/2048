@@ -87,6 +87,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool isDebug;
     [SerializeField] private float delaySwipeTime;
 
+    [Header("THEME")]
+
+
     private int _numBlockPerColumn;
     private float _blockDistance;
 
@@ -953,6 +956,22 @@ public class GameManager : MonoBehaviour
 
                         return;
                     }
+                }
+            }
+        }
+    }
+
+    public void ChangeTheme()
+    {
+        for (int i = 0; i < boardGenerator.NumLane; i++)
+        {
+            for (int j = 0; j < _numBlockPerColumn; j++)
+            {
+                if (_columnBlockIndexes[i, j] != -1)
+                {
+                    int blockIndex = _columnBlockIndexes[i, j];
+
+                    _blockControllers[blockIndex].SetColor(_blockNumberTexts[blockIndex]);
                 }
             }
         }
