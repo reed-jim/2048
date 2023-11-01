@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using PrimeTween;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +15,9 @@ public class ThemePickerPopup : Popup
     private TMP_Text[] _themeNames;
     private Button[] _chooseButtons;
     private RectTransform[] _chooseButtonRTs;
+
+    [Header("REFERENCE")]
+    [SerializeField] private DataManager dataManager;
 
     protected override void InitUI()
     {
@@ -46,24 +51,37 @@ public class ThemePickerPopup : Popup
             themeContainers[i].color = Constants.GetColorInTheme((Constants.Theme)i)[0];
 
             SetTextFontSize(_themeNames[i], 0.06f);
-            _themeNames[i].text = ((Constants.Theme)i).ToString();
+            SetText(_themeNames[i], ((Constants.Theme)i).ToString());
             _themeNames[i].color = Constants.GetTextColorInTheme((Constants.Theme)i)[0];
-            SetTextPreferredSize(_themeNames[i]);
-            // SetLocalPositionX(_themeNames[i].rectTransform, -0.4f * (themeContainers[i].rectTransform.sizeDelta.x - _themeNames[i].preferredWidth));
-
-            // SetSize(_chooseButtonRTs[i], 1f * themeContainers[i].rectTransform.sizeDelta.y, 0.5f * themeContainers[i].rectTransform.sizeDelta.y);
-            // SetLocalPositionX(_chooseButtonRTs[i], 0.4f * (themeContainers[i].rectTransform.sizeDelta.x - _chooseButtonRTs[i].sizeDelta.x));
 
             int index = i;
-            _chooseButtons[i].onClick.AddListener(() => ChooseTheme((Constants.Theme)index));
+            _chooseButtons[i].onClick.AddListener(() => ChooseTheme(index));
         }
     }
 
-    private void ChooseTheme(Constants.Theme theme)
+    private void ChooseTheme(int index)
     {
+        Constants.Theme theme = (Constants.Theme)index;
+
+        Vector3 initialScale = _chooseButtonRTs[index].localScale;
+
+        Tween.Scale(_chooseButtonRTs[index], new Vector3(1.1f * initialScale.x, initialScale.y, 1), duration: 0.3f, cycles: 2, cycleMode: CycleMode.Yoyo)
+            .OnComplete(() => OnAnimationCompleted())
+            .SetCycles(false);
+
+        Tween.Delay(0.1f).OnComplete(() => SetText(_themeNames[index], "Selected"));
+
         ThemePicker.value = theme;
-        Debug.Log("test00 " + theme);
-        Debug.Log("test01 " + ThemePicker.value);
+
+        dataManager.SaveSettingData(theme);        
+
         gameManager.ChangeTheme();
+
+        void OnAnimationCompleted()
+        {
+            Tween.Delay(0.1f).OnComplete(() => SetText(_themeNames[index], ((Constants.Theme)index).ToString()));
+
+            ClosePopup();
+        }
     }
 }

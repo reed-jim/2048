@@ -122,11 +122,13 @@ public class DataManager : MonoBehaviour
     private string _generalDataPath = "Assets/Data/Gameplay/general_data.json";
     private string _iapDataPath = "Assets/Data/Gameplay/iap_data.json";
     private string _dailyRewardDataPath = "Assets/Data/Gameplay/daily_reward_data.json";
+    private string _settingDataPath = "Assets/Data/Gameplay/setting_data.json";
 #elif UNITY_ANDROID
     private string _gameplayDataPath = Path.Combine(Application.persistentDataPath,"gameplay_data.json");
     private string _generalDataPath = Path.Combine(Application.persistentDataPath,"general_data.json");
     private string _iapDataPath = Path.Combine(Application.persistentDataPath,"iap_data.json");
     private string _dailyRewardDataPath = Path.Combine(Application.persistentDataPath,"daily_reward_data.json");
+    private string _settingDataPath = Path.Combine(Application.persistentDataPath,"setting_data.json");
 #endif
 
     [Header("EVENT")]
@@ -152,6 +154,10 @@ public class DataManager : MonoBehaviour
         _dailyRewardData = LoadDailyRewardData();
 
         GameplayData = LoadGameplayData();
+
+        SettingData settingData = LoadSettingData();
+
+        ThemePicker.value = settingData.Theme;
     }
 
     // public void SaveBestScore()
@@ -198,7 +204,7 @@ public class DataManager : MonoBehaviour
     public void SaveIAPData()
     {
         IAPData iapData = new IAPData(_numGem, _isAdRemoved);
-      
+
         File.WriteAllText(_iapDataPath, JsonConvert.SerializeObject(iapData));
     }
 
@@ -283,9 +289,38 @@ public class DataManager : MonoBehaviour
             return new GameplayData();
         }
     }
+
+    public void SaveSettingData(Constants.Theme theme)
+    {
+        SettingData data = new SettingData(theme);
+
+        Save(data, _settingDataPath);
+    }
+
+    private SettingData LoadSettingData()
+    {
+        if (File.Exists(_settingDataPath))
+        {
+            return JsonConvert.DeserializeObject<SettingData>(
+                File.ReadAllText(_settingDataPath));
+        }
+        else
+        {
+            return new SettingData();
+        }
+    }
     #endregion
 
     #region UTIL
+    private void Save<T>(T data, string dataPath)
+    {
+        using (StreamWriter file = File.CreateText(dataPath))
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Serialize(file, data);
+        }
+    }
+
     public void ResetGameplayData()
     {
         GameplayData data = new GameplayData();
@@ -614,6 +649,27 @@ public class DailyRewardData
     {
         _numDayGetReward = numDayGetReward;
         _lastTimestamp = newTimestamp;
+    }
+}
+
+public class SettingData
+{
+    private Constants.Theme _theme;
+
+    public Constants.Theme Theme
+    {
+        get => _theme;
+        set => _theme = value;
+    }
+
+    public SettingData()
+    {
+
+    }
+
+    public SettingData(Constants.Theme theme)
+    {
+        _theme = theme;
     }
 }
 #endregion

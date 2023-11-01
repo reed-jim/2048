@@ -4490,6 +4490,7 @@ MonoBehaviour:
     type: 3}
   blocks: []
   trails: []
+  backgroundRenderer: {fileID: 1588551764}
   blockNumberTextPrefab: {fileID: 7110162480775733123, guid: e528854aa6fc96e4caf3e09d72ace2f0,
     type: 3}
   blockNumberTextCollection: {fileID: 1621039051}
@@ -5025,6 +5026,11 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5279123616331614175, guid: a2fe80444443f6d4a923b1b7c7611660,
+        type: 3}
+      propertyPath: dataManager
+      value: 
+      objectReference: {fileID: 1080473771}
     - target: {fileID: 5279123616331614175, guid: a2fe80444443f6d4a923b1b7c7611660,
         type: 3}
       propertyPath: gameManager

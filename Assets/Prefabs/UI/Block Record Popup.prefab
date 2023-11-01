@@ -432,6 +432,7 @@ MonoBehaviour:
   blockText: {fileID: 807642061732503466}
   X4Button: {fileID: 3597731616413402193}
   adManager: {fileID: 0}
+  dataManager: {fileID: 0}
 --- !u!1 &2215597270027635308
 GameObject:
   m_ObjectHideFlags: 0

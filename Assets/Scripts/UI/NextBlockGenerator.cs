@@ -32,7 +32,7 @@ public class NextBlockGenerator : MonoBehaviour
 
         blockNumberText.text = NextBlockValue;
 
-        PlayEffect(Constants.AllBlockColors[NextColorIndex], Constants.AllBlockTextColors[NextColorIndex]);
+        PlayEffect(Constants.GetColorInTheme(ThemePicker.value)[NextColorIndex], Constants.GetTextColorInTheme(ThemePicker.value)[NextColorIndex]);
     }
 
     private void RandomNextBlockColorIndex(int exceptColorIndex = -1)

@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using PrimeTween;
 using TMPro;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Random = UnityEngine.Random;
 
 public enum MergeDirection
@@ -27,6 +30,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject blockPrefab;
     [SerializeField] private GameObject[] blocks;
     [SerializeField] private TrailRenderer[] trails;
+    [SerializeField] private SpriteRenderer backgroundRenderer;
     private Block[] _blockControllers;
     private Rigidbody[] _blockRigidBodies;
     private Camera _mainCamera;
@@ -153,6 +157,8 @@ public class GameManager : MonoBehaviour
 
         LoadData();
 
+        ApplySettingData();
+
         AudioManager.Instance.PlayBackgroundSound();
     }
 
@@ -209,6 +215,11 @@ public class GameManager : MonoBehaviour
     private void LoadGeneralData()
     {
         uiManager.SetBestScore(dataManager.BestScoreNumber, dataManager.BestScoreLetter);
+    }
+
+    private void ApplySettingData()
+    {
+        Addressables.LoadAssetAsync<Sprite>(Constants.backgroundAddressableKeys[(int)ThemePicker.value]).Completed += OnSpriteLoaded;
     }
     #endregion
 
@@ -274,10 +285,12 @@ public class GameManager : MonoBehaviour
 
     private void SetTrail()
     {
+        var theme = ThemePicker.value;
+
         trails[_currentPoolBlockIndex].startColor =
-            Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 0.1f);
+            Constants.GetColorInTheme(theme)[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 0.1f);
         trails[_currentPoolBlockIndex].endColor =
-            Constants.AllBlockColors[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 1);
+            Constants.GetColorInTheme(theme)[nextBlockGenerator.NextColorIndex] - new Color(0, 0, 0, 1);
         trails[_currentPoolBlockIndex].gameObject.SetActive(true);
     }
     #endregion
@@ -579,7 +592,7 @@ public class GameManager : MonoBehaviour
         // Color newColor = Constants.AllBlockColors[newColorIndex];
 
         _blockControllers[mergedBlockIndex].TweenColor(
-            Constants.AllBlockColors[_blockControllers[blockIndex].ColorIndex], 0.9f * mergeDuration, () =>
+            Constants.GetColorInTheme(ThemePicker.value)[_blockControllers[blockIndex].ColorIndex], 0.9f * mergeDuration, () =>
             {
                 // _blockControllers[mergedBlockIndex].TweenColor(
                 //     newColor, 0.6f * mergeDuration, () => { }
@@ -655,8 +668,10 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        var theme = ThemePicker.value;
+
         int newColorIndex = remainingColorIndexes[Random.Range(0, remainingColorIndexes.Count)];
-        Color newColor = Constants.AllBlockColors[newColorIndex];
+        Color newColor = Constants.GetColorInTheme(theme)[newColorIndex];
 
         if (newBestBlockIndex == blockIndex)
         {
@@ -667,7 +682,7 @@ public class GameManager : MonoBehaviour
            newColor, 0.9f * mergeDuration, () => { _blockControllers[blockIndex].ColorIndex = newColorIndex; }
         );
 
-        Tween.Custom(_blockNumberTexts[blockIndex].color, Constants.AllBlockTextColors[newColorIndex], duration: 0.9f * mergeDuration,
+        Tween.Custom(_blockNumberTexts[blockIndex].color, Constants.GetTextColorInTheme(theme)[newColorIndex], duration: 0.9f * mergeDuration,
             onValueChange: newVal => _blockNumberTexts[blockIndex].color = newVal
         );
     }
@@ -974,6 +989,16 @@ public class GameManager : MonoBehaviour
                     _blockControllers[blockIndex].SetColor(_blockNumberTexts[blockIndex]);
                 }
             }
+        }
+
+        Addressables.LoadAssetAsync<Sprite>(Constants.backgroundAddressableKeys[(int)ThemePicker.value]).Completed += OnSpriteLoaded;
+    }
+
+    private void OnSpriteLoaded(AsyncOperationHandle<Sprite> handle)
+    {
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            backgroundRenderer.sprite = handle.Result;
         }
     }
     #endregion

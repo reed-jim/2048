@@ -68,14 +68,31 @@ public class Popup : MonoBehaviour
             .OnComplete(() => container.gameObject.SetActive(false));
     }
 
+    public virtual void ClosePopupNotUnpause()
+    {
+        AudioManager.Instance.PlayPopupSound();
+
+        Tween.UIAnchoredPosition(container, new Vector2(0, screenSize.y), duration: 0.4f)
+            .OnComplete(() => container.gameObject.SetActive(false));
+    }
+
     protected void SetUIElementSizeToParent(RectTransform target, RectTransform parent, Vector2 proportional)
     {
         target.sizeDelta = new Vector2(proportional.x * parent.sizeDelta.x, proportional.y * parent.sizeDelta.y);
     }
 
-    protected void SetTextFontSize(TMP_Text text, float proportion)
+    protected void SetText(TMP_Text tmpText, string text)
+    {
+        tmpText.text = text;
+
+        SetTextPreferredSize(tmpText);
+    }
+
+    protected void SetTextFontSize(TMP_Text text, float proportion, bool isSetPreferredSize = false)
     {
         text.fontSize = proportion * screenSize.x;
+
+        if (isSetPreferredSize) SetTextPreferredSize(text);
     }
 
     protected void SetTextFontSizeDirectly(TMP_Text text, float fontSize)

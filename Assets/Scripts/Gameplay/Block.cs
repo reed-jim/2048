@@ -63,19 +63,20 @@ public class Block : MonoBehaviour
 
     public void SetColor(int colorIndex, TMP_Text blockNumber)
     {
+        
         // Color color = Constants.AllBlockColors[colorIndex];
-        Color color = Constants.GetColorInTheme(ThemePicker.value)[ColorIndex];
+        Color color = Constants.GetColorInTheme(ThemePicker.value)[colorIndex];
 
         _customMaterialProperty.ChangeColor(color);
         // blockNumber.color = Constants.AllBlockTextColors[colorIndex];
-        blockNumber.color = Constants.GetTextColorInTheme(ThemePicker.value)[ColorIndex];
+        blockNumber.color = Constants.GetTextColorInTheme(ThemePicker.value)[colorIndex];
 
         ColorIndex = colorIndex;
     }
 
     public void TweenColor(Color newColor, float duration, OnTweenColorCompleted onTweenColorCompleted)
     {
-        Color currentColor = Constants.AllBlockColors[ColorIndex];
+        Color currentColor = Constants.GetColorInTheme(ThemePicker.value)[ColorIndex];
 
         Tween.Custom(currentColor, newColor, duration: duration,
                 onValueChange: newVal => _customMaterialProperty.ChangeColor(newVal))

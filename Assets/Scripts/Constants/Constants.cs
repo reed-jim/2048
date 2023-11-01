@@ -100,6 +100,9 @@ public static class Constants
         FromHexShift("#bc4749", false),
     };
 
+    public static string[] backgroundAddressableKeys = {
+        "default_background", "classic_background", "Easter_Egg_background", "Christmas_background"
+    };
 
     public static Color[] GetColorInTheme(Theme theme)
     {

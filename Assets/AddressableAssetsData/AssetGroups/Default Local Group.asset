@@ -52,6 +52,26 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9e493fe128f8be040b2551046a601c83
+    m_Address: classic_background
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0203464cc95f26642ba1f5cbfb788b95
+    m_Address: default_background
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f6622f96220fb445a54d4f38b376bc0
+    m_Address: Easter_Egg_background
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 29d75fda22f97bd46b42ec65c38795f9
+    m_Address: Christmas_background
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: c0f0cfcc175ecc14690d68d2bbc65b59, type: 2}
   m_SchemaSet:

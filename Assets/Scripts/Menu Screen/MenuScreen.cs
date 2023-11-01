@@ -218,7 +218,7 @@ public class MenuScreen : MonoBehaviour
         gemText.text = Utils.ToAbbreviatedNumber(dataManager.NumGem);
         bestScoreText.text = dataManager.BestScoreNumber.ToString("F2") + dataManager.BestScoreLetter;
 
-        bestBlockImage.color = Constants.AllBlockColors[dataManager.BestBlockColorIndex];
+        bestBlockImage.color = Constants.GetColorInTheme(ThemePicker.value)[dataManager.BestBlockColorIndex];
         bestBlockNumberText.text = dataManager.BestBlockNumber.ToString("F0") + dataManager.BestBlockLetter;
         bestBlockNumberText.text = bestBlockNumberText.text.ToUpper();
         SetTextPreferredSize(bestBlockNumberText);

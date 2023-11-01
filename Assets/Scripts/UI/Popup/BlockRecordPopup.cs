@@ -53,9 +53,9 @@ public class BlockRecordPopup : Popup
 
     public void ShowPopup(float blockNumber, char? blockLetter, int colorIndex)
     {
-        blockImage.color = Constants.AllBlockColors[colorIndex];
+        blockImage.color = Constants.GetColorInTheme(ThemePicker.value)[colorIndex];
         blockText.text = blockNumber.ToString("F0") + blockLetter;
-        blockText.color = Constants.AllBlockTextColors[colorIndex];
+        blockText.color = Constants.GetTextColorInTheme(ThemePicker.value)[colorIndex];
 
         X4Button.onClick.RemoveAllListeners();
         X4Button.onClick.AddListener(() => ShowAdForMultiplyBlockValue());

@@ -1,4 +1,5 @@
 using System;
+using PrimeTween;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -7,10 +8,12 @@ using UnityEngine.UI;
 
 public class PausePopup : Popup
 {
+    [SerializeField] private Button changeThemeBigButton;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button replayButton;
     [SerializeField] private Button continueButton;
 
+    [SerializeField] private RectTransform changeThemeBigButtonRT;
     [SerializeField] private RectTransform quitButtonRT;
     [SerializeField] private RectTransform replayButtonRT;
     [SerializeField] private RectTransform continueButtonRT;
@@ -28,9 +31,9 @@ public class PausePopup : Popup
     [SerializeField] private Sprite unmuteSprite;
 
     [Header("TEXT")]
+    [SerializeField] TMP_Text themeText;
     [SerializeField]
     private TMP_Text quitText;
-
     [SerializeField] private TMP_Text replayText;
     [SerializeField] private TMP_Text continueText;
 
@@ -43,50 +46,46 @@ public class PausePopup : Popup
 
     private void Start()
     {
-        _muteButtonRT = muteButton.GetComponent<RectTransform>();
-        _themeButtonRT = themeButton.GetComponent<RectTransform>();
-        _removeAdButtonRT = removeAdButton.GetComponent<RectTransform>();
-
         closeButton.onClick.AddListener(ClosePopup);
+        changeThemeBigButton.onClick.AddListener(ShowThemePickerPopup);
         quitButton.onClick.AddListener(QuitToHome);
         replayButton.onClick.AddListener(Replay);
         continueButton.onClick.AddListener(ClosePopup);
         muteButton.onClick.AddListener(Mute);
         themeButton.onClick.AddListener(ShowThemePickerPopup);
         removeAdButton.onClick.AddListener(OnRemoveAdButtonPressed);
-
-        InitUI();
     }
 
-    private void InitUI()
+    protected override void InitUI()
     {
+        base.InitUI();
+
+        _muteButtonRT = muteButton.GetComponent<RectTransform>();
+        _themeButtonRT = themeButton.GetComponent<RectTransform>();
+        _removeAdButtonRT = removeAdButton.GetComponent<RectTransform>();
+
+        SetUIElementSizeToParent(changeThemeBigButtonRT, container, new Vector2(0.8f, 0.08f));
         SetUIElementSizeToParent(quitButtonRT, container, new Vector2(0.8f, 0.08f));
         SetUIElementSizeToParent(replayButtonRT, container, new Vector2(0.8f, 0.08f));
         SetUIElementSizeToParent(continueButtonRT, container, new Vector2(0.8f, 0.08f));
 
-        quitButtonRT.localPosition = new Vector3(0, 0.1f * container.sizeDelta.y, 0);
-        replayButtonRT.localPosition =
-            new Vector3(0, 0.1f * container.sizeDelta.y - 1 * 1.1f * quitButtonRT.sizeDelta.y, 0);
-        continueButtonRT.localPosition =
-            new Vector3(0, 0.1f * container.sizeDelta.y - 2 * 1.1f * quitButtonRT.sizeDelta.y, 0);
+        SetLocalPositionY(changeThemeBigButtonRT, 0.2f * container.sizeDelta.y);
+        SetLocalPositionY(quitButtonRT, 0.2f * container.sizeDelta.y - 1 * 1.1f * quitButtonRT.sizeDelta.y);
+        SetLocalPositionY(replayButtonRT, 0.2f * container.sizeDelta.y - 2 * 1.1f * quitButtonRT.sizeDelta.y);
+        SetLocalPositionY(continueButtonRT, 0.2f * container.sizeDelta.y - 3 * 1.1f * quitButtonRT.sizeDelta.y);
 
         _muteButtonRT.sizeDelta = 0.15f * new Vector2(container.sizeDelta.x, container.sizeDelta.x);
         _themeButtonRT.sizeDelta = _muteButtonRT.sizeDelta;
         _removeAdButtonRT.sizeDelta = _muteButtonRT.sizeDelta;
 
-        _muteButtonRT.localPosition = new Vector3(-1.1f * _muteButtonRT.sizeDelta.x,
-            -0.3f * (container.sizeDelta.y - _muteButtonRT.sizeDelta.y), 0);
+        SetLocalPosition(_muteButtonRT, -1.1f * _muteButtonRT.sizeDelta.x, -0.3f * (container.sizeDelta.y - _muteButtonRT.sizeDelta.y));
         SetLocalPosition(_themeButtonRT, 0, _muteButtonRT.localPosition.y);
         SetLocalPosition(_removeAdButtonRT, 1.1f * _removeAdButtonRT.sizeDelta.x, _muteButtonRT.localPosition.y);
 
-        SetTextSize(quitText, 0.07f);
-        SetTextSize(replayText, 0.07f);
-        SetTextSize(continueText, 0.07f);
-    }
-
-    private void SetTextSize(TMP_Text text, float proportion)
-    {
-        text.fontSize = (int)(proportion * screenSize.x);
+        SetTextFontSize(themeText, 0.07f, isSetPreferredSize: true);
+        SetTextFontSize(quitText, 0.07f, isSetPreferredSize: true);
+        SetTextFontSize(replayText, 0.07f, isSetPreferredSize: true);
+        SetTextFontSize(continueText, 0.07f, isSetPreferredSize: true);
     }
 
     private void QuitToHome()
@@ -121,6 +120,7 @@ public class PausePopup : Popup
 
     private void ShowThemePickerPopup()
     {
+        Tween.Delay(0.1f).OnComplete(() => ClosePopupNotUnpause());
         themePickerPopup.ShowPopup();
     }
 
