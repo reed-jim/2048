@@ -10,7 +10,9 @@ public static class Constants
         Default,
         Classic,
         EasterEgg,
-        Christmas
+        Christmas,
+        Tropical,
+        Ocean
     }
 
     public static Color[] AllBlockColors =
@@ -94,14 +96,52 @@ public static class Constants
     public static Color[] AllBlockTextColorsChristmas =
     {
         FromHexShift("#386641", false),
-        FromHexShift("#6a994e"),
+        FromHexShift("#6a994e", false),
         FromHexShift("#a7c957"),
         FromHexShift("#f2e8cf"),
         FromHexShift("#bc4749", false),
     };
 
+    // TROPICAL
+    public static Color[] AllBlockColorsTropical =
+    {
+        FromHex("#264653"),
+        FromHex("#2a9d8f"),
+        FromHex("#e9c46a"),
+        FromHex("#f4a261"),
+        FromHex("#e76f51"),
+    };
+
+    public static Color[] AllBlockTextColorsTropical =
+    {
+        FromHexShift("#264653", false),
+        FromHexShift("#2a9d8f", false),
+        FromHexShift("#e9c46a"),
+        FromHexShift("#f4a261"),
+        FromHexShift("#e76f51", false),
+    };
+
+    // OCEAN
+    public static Color[] AllBlockColorsOcean =
+    {
+        FromHex("#e63946"),
+        FromHex("#f1faee"),
+        FromHex("#a8dadc"),
+        FromHex("#457b9d"),
+        FromHex("#1d3557"),
+    };
+
+    public static Color[] AllBlockTextColorsOcean =
+    {
+        FromHexShift("#e63946", false),
+        FromHexShift("#f1faee"),
+        FromHexShift("#a8dadc", false),
+        FromHexShift("#457b9d", false),
+        FromHexShift("#1d3557", false),
+    };
+
     public static string[] backgroundAddressableKeys = {
-        "default_background", "classic_background", "Easter_Egg_background", "Christmas_background"
+        "default_background", "classic_background", "Easter_Egg_background", "Christmas_background", "tropical_forest_background", "under_sea_background"
     };
 
     public static Color[] GetColorInTheme(Theme theme)
@@ -110,6 +150,8 @@ public static class Constants
         if (theme == Theme.Classic) return AllBlockColorsClassic;
         if (theme == Theme.EasterEgg) return AllBlockColorsEasterEgg;
         if (theme == Theme.Christmas) return AllBlockColorsChristmas;
+        if (theme == Theme.Tropical) return AllBlockColorsTropical;
+        if (theme == Theme.Ocean) return AllBlockColorsOcean;
         else return AllBlockColors;
     }
 
@@ -119,6 +161,8 @@ public static class Constants
         if (theme == Theme.Classic) return AllBlockTextColorsClassic;
         if (theme == Theme.EasterEgg) return AllBlockTextColorsEasterEgg;
         if (theme == Theme.Christmas) return AllBlockTextColorsChristmas;
+        if (theme == Theme.Tropical) return AllBlockTextColorsTropical;
+        if (theme == Theme.Ocean) return AllBlockTextColorsOcean;
         else return AllBlockTextColors;
     }
 

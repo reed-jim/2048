@@ -62,13 +62,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5f6622f96220fb445a54d4f38b376bc0
+  - m_GUID: db428883755a43a48898f1c0fdd76864
     m_Address: Easter_Egg_background
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 29d75fda22f97bd46b42ec65c38795f9
     m_Address: Christmas_background
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8d7ea6d60adf8454e92399a5bd364a73
+    m_Address: tropical_forest_background
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4059ff975703f5e498702a2db20903e8
+    m_Address: under_sea_background
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

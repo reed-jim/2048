@@ -1,6 +1,7 @@
 using System;
 using PrimeTween;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -147,7 +148,7 @@ public class UIManager : MonoBehaviour
 
         SetSizeKeepRatioX(gemImageRT.GetComponent<Image>(), 0.6f * gemContainer.sizeDelta.y);
         UtilsUI.SetLocalPositionX(gemImageRT, -0.4f * (gemContainer.sizeDelta.x - gemImageRT.sizeDelta.x));
-    
+
         gemText.text = Utils.ToAbbreviatedNumber(dataManager.NumGem);
         UtilsUI.SetTextFontSize(gemText, 0.035f);
         UtilsUI.SetTextPreferredSize(gemText);
@@ -351,13 +352,14 @@ public class UIManager : MonoBehaviour
         Color initialColor = image.color;
         // Color errorColor = initialColor + new Color(0.7f, 0, 0, 0.2f);
         Color errorColor = Color.red;
+        errorColor.a = image.color.a;
 
         Tween.Scale(rectTransform, 1.05f, duration: 0.3f, cycles: 2, cycleMode: CycleMode.Yoyo).SetCycles(false);
 
         Tween.Custom(initialColor, errorColor, duration: 0.4f, cycles: 2, cycleMode: CycleMode.Yoyo, onValueChange: newVal => image.color = newVal)
             .SetCycles(false);
 
-        Tween.Custom(text.color, Color.black, duration: 0.5f, cycles: 2, cycleMode: CycleMode.Yoyo, onValueChange: newVal => text.color = newVal)
+        Tween.Custom(text.color, new Color(1, 195f / 255, 180f / 255, 1), duration: 0.5f, cycles: 2, cycleMode: CycleMode.Yoyo, onValueChange: newVal => text.color = newVal)
             .SetCycles(false);
     }
     #endregion
@@ -408,6 +410,8 @@ public class UIManager : MonoBehaviour
         else if (productId == "remove_ad")
         {
             dataManager.IsAdRemoved = true;
+
+            shopPopup.HandleAdRemoved();
 
             adManager.DestroyBannerAd();
         }

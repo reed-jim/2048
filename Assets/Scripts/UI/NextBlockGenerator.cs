@@ -32,7 +32,7 @@ public class NextBlockGenerator : MonoBehaviour
 
         blockNumberText.text = NextBlockValue;
 
-        PlayEffect(Constants.GetColorInTheme(ThemePicker.value)[NextColorIndex], Constants.GetTextColorInTheme(ThemePicker.value)[NextColorIndex]);
+        TweenColor(Constants.GetColorInTheme(ThemePicker.value)[NextColorIndex], Constants.GetTextColorInTheme(ThemePicker.value)[NextColorIndex]);
     }
 
     private void RandomNextBlockColorIndex(int exceptColorIndex = -1)
@@ -75,7 +75,7 @@ public class NextBlockGenerator : MonoBehaviour
         }
     }
 
-    private void PlayEffect(Color newColor, Color newTextColor)
+    private void TweenColor(Color newColor, Color newTextColor)
     {
         Tween.Custom(blockImage.color, newColor, duration: 0.35f, cycles: 2, cycleMode: CycleMode.Yoyo
                 , onValueChange: newVal => blockImage.color = newVal)
@@ -87,5 +87,11 @@ public class NextBlockGenerator : MonoBehaviour
 
         // Tween.Color(blockImage, 1.1f, duration: 0.2f, cycles: 2, cycleMode: CycleMode.Yoyo)
         //     .SetCycles(false);
+    }
+
+    public void ChangeTheme() {
+        var theme = ThemePicker.value;
+
+        TweenColor(Constants.GetColorInTheme(theme)[NextColorIndex], Constants.GetTextColorInTheme(theme)[NextColorIndex]);
     }
 }

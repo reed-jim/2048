@@ -64,10 +64,12 @@ public class PausePopup : Popup
         _themeButtonRT = themeButton.GetComponent<RectTransform>();
         _removeAdButtonRT = removeAdButton.GetComponent<RectTransform>();
 
-        SetUIElementSizeToParent(changeThemeBigButtonRT, container, new Vector2(0.8f, 0.08f));
-        SetUIElementSizeToParent(quitButtonRT, container, new Vector2(0.8f, 0.08f));
-        SetUIElementSizeToParent(replayButtonRT, container, new Vector2(0.8f, 0.08f));
-        SetUIElementSizeToParent(continueButtonRT, container, new Vector2(0.8f, 0.08f));
+        float bigButtonSizePercent = 1 - paddingPercent * 2.5f;
+
+        SetUIElementSizeToParent(changeThemeBigButtonRT, container, new Vector2(bigButtonSizePercent, 0.08f));
+        SetUIElementSizeToParent(quitButtonRT, container, new Vector2(bigButtonSizePercent, 0.08f));
+        SetUIElementSizeToParent(replayButtonRT, container, new Vector2(bigButtonSizePercent, 0.08f));
+        SetUIElementSizeToParent(continueButtonRT, container, new Vector2(bigButtonSizePercent, 0.08f));
 
         SetLocalPositionY(changeThemeBigButtonRT, 0.2f * container.sizeDelta.y);
         SetLocalPositionY(quitButtonRT, 0.2f * container.sizeDelta.y - 1 * 1.1f * quitButtonRT.sizeDelta.y);
@@ -120,7 +122,6 @@ public class PausePopup : Popup
 
     private void ShowThemePickerPopup()
     {
-        Tween.Delay(0.1f).OnComplete(() => ClosePopupNotUnpause());
         themePickerPopup.ShowPopup();
     }
 

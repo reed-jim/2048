@@ -37,6 +37,7 @@ public class MenuScreen : MonoBehaviour
     [SerializeField] private DailyRewardPopup dailyRewardPopup;
     [SerializeField] private LoadingPopup loadingPopup;
     [SerializeField] private RewardClaimPopup rewardClaimPopup;
+    [SerializeField] private ThemePickerPopup themePickerPopup;
 
     [Header("REFERENCE")][SerializeField] private DataManager dataManager;
     [SerializeField] private IAPManager iapManager;
@@ -65,6 +66,8 @@ public class MenuScreen : MonoBehaviour
 
         LoadData();
 
+        if (!dataManager.IsUserFirstSelectTheme) themePickerPopup.ShowPopup();
+
         AudioManager.Instance.PlayBackgroundSound();
     }
 
@@ -82,9 +85,9 @@ public class MenuScreen : MonoBehaviour
 
     private void InitUI()
     {
-        SetSize(_playButtonRT, 0.6f * _screenSize.x, 0.1f * _screenSize.y);
+        SetSize(_playButtonRT, 0.5f * _screenSize.x, 0.1f * _screenSize.y);
         SetLocalPositionY(_playButtonRT, -0.15f * _screenSize.y);
-        SetTextFontSize(playButtonText, 0.1f);
+        SetTextFontSize(playButtonText, 0.09f);
 
         SetSize(topContainer, _screenSize.x, 0.05f * _screenSize.y);
         SetSize(gemContainer, 0.3f * topContainer.sizeDelta.x, 1f * topContainer.sizeDelta.y);
@@ -104,11 +107,11 @@ public class MenuScreen : MonoBehaviour
             _shopButtonRT.localPosition.y
         );
         SetLocalPosition(_removeAdButtonRT, _dailyRewardButtonRT.localPosition.x,
-            _dailyRewardButtonRT.localPosition.y - 0.6f * (GetSizeByScale(_dailyRewardButtonRT).y + GetSizeByScale(_removeAdButtonRT).x)
+            _dailyRewardButtonRT.localPosition.y - 0.7f * (GetSizeByScale(_dailyRewardButtonRT).y + GetSizeByScale(_removeAdButtonRT).x)
         );
 
         SetSizeKeepRatioX(gemImage, 0.7f * gemContainer.sizeDelta.y);
-        SetSizeKeepRatioX(crownImage, 0.7f * bestScoreContainer.sizeDelta.y);
+        SetSizeKeepRatioX(crownImage, 0.6f * bestScoreContainer.sizeDelta.y);
 
         SetLocalPositionX(gemImage.rectTransform, -0.4f * (gemContainer.sizeDelta.x - gemImage.rectTransform.sizeDelta.x));
         SetLocalPositionX(crownImage.rectTransform, -0.4f * (bestScoreContainer.sizeDelta.x - crownImage.rectTransform.sizeDelta.x));
@@ -219,6 +222,7 @@ public class MenuScreen : MonoBehaviour
         bestScoreText.text = dataManager.BestScoreNumber.ToString("F2") + dataManager.BestScoreLetter;
 
         bestBlockImage.color = Constants.GetColorInTheme(ThemePicker.value)[dataManager.BestBlockColorIndex];
+        bestBlockNumberText.color = Constants.GetTextColorInTheme(ThemePicker.value)[dataManager.BestBlockColorIndex];
         bestBlockNumberText.text = dataManager.BestBlockNumber.ToString("F0") + dataManager.BestBlockLetter;
         bestBlockNumberText.text = bestBlockNumberText.text.ToUpper();
         SetTextPreferredSize(bestBlockNumberText);
@@ -276,6 +280,8 @@ public class MenuScreen : MonoBehaviour
         else if (productId == "remove_ad")
         {
             dataManager.IsAdRemoved = true;
+
+            Destroy(removeAdButton.gameObject);
 
             adManager.DestroyBannerAd();
         }

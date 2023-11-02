@@ -465,7 +465,7 @@ GameObject:
   - component: {fileID: 6347816595535259177}
   - component: {fileID: 7654377478624442994}
   m_Layer: 5
-  m_Name: X2Button
+  m_Name: X5Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -638,7 +638,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Watch Ad X2
+  m_text: Watch Ad X5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 90ea3f798e22c6d4f8c4e337e56d9ce2, type: 2}
   m_sharedMaterial: {fileID: -8181321076560191552, guid: 90ea3f798e22c6d4f8c4e337e56d9ce2,

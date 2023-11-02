@@ -18,6 +18,8 @@ public class DataManager : MonoBehaviour
     private int _numGem;
     private bool _isAdRemoved;
 
+    private bool _isUserFirstSelectTheme;
+
     private DailyRewardData _dailyRewardData;
 
     public float ScoreNumber
@@ -70,6 +72,10 @@ public class DataManager : MonoBehaviour
     {
         get => _isAdRemoved;
         set => _isAdRemoved = value;
+    }
+
+    public bool IsUserFirstSelectTheme {
+        get => _isUserFirstSelectTheme;
     }
 
     public DailyRewardData DailyRewardData
@@ -158,6 +164,8 @@ public class DataManager : MonoBehaviour
         SettingData settingData = LoadSettingData();
 
         ThemePicker.value = settingData.Theme;
+
+        _isUserFirstSelectTheme = settingData.IsFirstSelectTheme;
     }
 
     // public void SaveBestScore()
@@ -655,11 +663,17 @@ public class DailyRewardData
 public class SettingData
 {
     private Constants.Theme _theme;
+    private bool _isFirstSelectTheme;
 
     public Constants.Theme Theme
     {
         get => _theme;
         set => _theme = value;
+    }
+
+    public bool IsFirstSelectTheme {
+        get => _isFirstSelectTheme;
+        set => _isFirstSelectTheme = value;
     }
 
     public SettingData()
@@ -670,6 +684,7 @@ public class SettingData
     public SettingData(Constants.Theme theme)
     {
         _theme = theme;
+        _isFirstSelectTheme = true;
     }
 }
 #endregion

@@ -18,6 +18,9 @@ public class Popup : MonoBehaviour
 
     [Header("REFERENCE")][SerializeField] protected GameManager gameManager;
 
+    [Header("CUSTOMIZE")]
+    protected float paddingPercent = 0.05f;
+
     private void Awake()
     {
         screenSize = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
@@ -37,9 +40,9 @@ public class Popup : MonoBehaviour
         title.text = title.text.ToUpper();
 
         title.rectTransform.sizeDelta = new Vector2(title.preferredWidth, title.preferredHeight);
-        title.rectTransform.localPosition = new Vector3(0, 0.45f * (container.sizeDelta.y - title.preferredHeight), 0);
+        title.rectTransform.localPosition = new Vector3(0, 0.5f * (container.sizeDelta.y - title.preferredHeight) - paddingPercent * container.sizeDelta.x, 0);
 
-        closeButtonRT.localPosition = new Vector3(0.45f * (container.sizeDelta.x - closeButtonRT.sizeDelta.x),
+        closeButtonRT.localPosition = new Vector3(0.5f * (container.sizeDelta.x - closeButtonRT.sizeDelta.x) - paddingPercent * container.sizeDelta.x,
             title.rectTransform.localPosition.y, 0);
 
         container.gameObject.SetActive(false);

@@ -377,6 +377,7 @@ MonoBehaviour:
   scrollView: {fileID: 6686559126915534017}
   themeCollection: {fileID: 7802932745094931147}
   themeContainers: []
+  dataManager: {fileID: 0}
 --- !u!1001 &8061492492482590776
 PrefabInstance:
   m_ObjectHideFlags: 0

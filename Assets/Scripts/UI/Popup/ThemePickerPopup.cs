@@ -19,6 +19,9 @@ public class ThemePickerPopup : Popup
     [Header("REFERENCE")]
     [SerializeField] private DataManager dataManager;
 
+    [Header("POPUP")]
+    [SerializeField] private PausePopup pausePopup;
+
     protected override void InitUI()
     {
         base.InitUI();
@@ -65,7 +68,7 @@ public class ThemePickerPopup : Popup
 
         Vector3 initialScale = _chooseButtonRTs[index].localScale;
 
-        Tween.Scale(_chooseButtonRTs[index], new Vector3(1.1f * initialScale.x, initialScale.y, 1), duration: 0.3f, cycles: 2, cycleMode: CycleMode.Yoyo)
+        Tween.Scale(_chooseButtonRTs[index], new Vector3(1.05f * initialScale.x, initialScale.y, 1), duration: 0.3f, cycles: 2, cycleMode: CycleMode.Yoyo)
             .OnComplete(() => OnAnimationCompleted())
             .SetCycles(false);
 
@@ -73,9 +76,11 @@ public class ThemePickerPopup : Popup
 
         ThemePicker.value = theme;
 
-        dataManager.SaveSettingData(theme);        
+        dataManager.SaveSettingData(theme);
 
-        gameManager.ChangeTheme();
+        if(pausePopup != null) pausePopup.ClosePopup();
+
+        if (gameManager != null) gameManager.ChangeTheme();
 
         void OnAnimationCompleted()
         {

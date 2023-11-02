@@ -72,7 +72,7 @@ public class RewardClaimPopup : Popup
         if (dataManager.IsAdRemoved)
         {
             HandleOnRewardedAdCompleted();
-            
+
             x2Button.gameObject.SetActive(false);
         }
         else
@@ -83,10 +83,10 @@ public class RewardClaimPopup : Popup
 
     private void HandleOnRewardedAdCompleted()
     {
-        dataManager.NumGem += _numGemClaim;
+        dataManager.NumGem += 4 * _numGemClaim;
         dataManager.SaveIAPData();
 
-        SetNumGemClaimText(2 * _numGemClaim);
+        SetNumGemClaimText(5 * _numGemClaim);
 
         onNumGemUpdatedEvent.Raise();
     }

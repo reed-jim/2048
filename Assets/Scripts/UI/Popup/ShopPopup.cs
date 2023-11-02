@@ -75,7 +75,7 @@ public class ShopPopup : Popup
 
         for (int i = 0; i < itemButtons.Length; i++)
         {
-            _itemButtonRTs[i].sizeDelta = new Vector2(0.9f * container.sizeDelta.x, 0.085f * container.sizeDelta.y);
+            _itemButtonRTs[i].sizeDelta = new Vector2((1 - 2.5f * paddingPercent) * container.sizeDelta.x, 0.085f * container.sizeDelta.y);
             _itemButtonRTs[i].localPosition =
                 new Vector3(0, 0.3f * container.sizeDelta.y - i * 1.15f * _itemButtonRTs[i].sizeDelta.y, 0);
 
@@ -166,5 +166,10 @@ public class ShopPopup : Popup
         onNumGemUpdatedEvent.Raise();
 
         rewardClaimPopup.ShowPopup(200);
+    }
+
+    public void HandleAdRemoved() {
+        _buyButtons[0].interactable = false;
+        _itemCostText[0].text = "Owned";
     }
 }

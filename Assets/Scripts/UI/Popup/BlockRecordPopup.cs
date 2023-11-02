@@ -18,6 +18,8 @@ public class BlockRecordPopup : Popup
     [SerializeField] private Button X4Button;
     private RectTransform _x4ButtonRT;
 
+    [SerializeField] TMP_Text x2ButtonText;
+
     [Header("REFERENCE")]
     [SerializeField] private AdManager adManager;
     [SerializeField] private DataManager dataManager;
@@ -49,6 +51,8 @@ public class BlockRecordPopup : Popup
 
         SetUIElementSizeToParent(_x4ButtonRT, innerContainer, new Vector2(0.5f, 0.13f));
         SetLocalPositionY(_x4ButtonRT, -0.4f * (innerContainer.sizeDelta.y - _x4ButtonRT.sizeDelta.y));
+
+        SetTextFontSize(x2ButtonText, 0.05f);
     }
 
     public void ShowPopup(float blockNumber, char? blockLetter, int colorIndex)

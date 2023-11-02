@@ -425,6 +425,7 @@ public class GameManager : MonoBehaviour
             Vector3 destination = blocks[blockIndex].transform.position;
 
             trails[mergedBlockIndex].gameObject.SetActive(false);
+            _blockNumberTexts[mergedBlockIndex].gameObject.SetActive(false);
 
             if (isLast)
             {
@@ -435,12 +436,19 @@ public class GameManager : MonoBehaviour
 
                 Vector3 startScale = blockWidth * Vector3.one;
                 startScale.z = blocks[0].transform.localScale.z;
-                Vector3 endScale = 1.1f * blockWidth * Vector3.one;
+                Vector3 endScale = 1.05f * blockWidth * Vector3.one;
                 endScale.z = blocks[0].transform.localScale.z;
 
-                Tween.Scale(blocks[blockIndex].transform, endScale, duration: mergeDuration)
-                    .OnComplete(() =>
-                        Tween.Scale(blocks[blockIndex].transform, startScale, duration: mergeDuration));
+                Tween.StopAll(blocks[blockIndex].transform);
+                Tween.Scale(blocks[mergedBlockIndex].transform, endScale, duration: mergeDuration,
+                   cycles: 2, cycleMode: CycleMode.Yoyo).SetCycles(false);
+
+                Tween.Scale(blocks[blockIndex].transform, endScale, duration: mergeDuration,
+                    cycles: 2, cycleMode: CycleMode.Yoyo).SetCycles(false);
+
+                // Tween.Scale(blocks[blockIndex].transform, endScale, duration: mergeDuration)
+                //     .OnComplete(() =>
+                //         Tween.Scale(blocks[blockIndex].transform, startScale, duration: mergeDuration));
             }
             else
             {
@@ -990,6 +998,8 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+
+        nextBlockGenerator.ChangeTheme();
 
         Addressables.LoadAssetAsync<Sprite>(Constants.backgroundAddressableKeys[(int)ThemePicker.value]).Completed += OnSpriteLoaded;
     }
